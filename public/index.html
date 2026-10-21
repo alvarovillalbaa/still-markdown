@@ -1,0 +1,66 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <meta name="theme-color" content="#faf9f6">
+  <meta name="description" content="A quiet home for your words. A private, continuous Markdown editor with easy imports and MCP access for your AI tools.">
+  <title>Still — a little space to think</title>
+  <link rel="icon" href="/favicon.svg" type="image/svg+xml">
+  <link rel="stylesheet" href="/styles.css">
+  <script type="module" src="/app.js"></script>
+</head>
+<body>
+  <a class="skip-link" href="#editor">Skip to writing</a>
+  <div class="app" id="app">
+    <button class="sidebar-scrim" id="sidebar-scrim" aria-label="Close pages"></button>
+    <aside class="sidebar" id="sidebar" aria-label="Your pages">
+      <div class="brand"><span class="brand-mark" aria-hidden="true">s</span><span>still<span class="brand-dot">.</span></span><button class="icon-button mobile-only" id="close-sidebar" aria-label="Close pages">×</button></div>
+      <button class="new-page" id="new-page"><span aria-hidden="true">＋</span> New page <kbd>⌘ N</kbd></button>
+      <label class="search"><span aria-hidden="true">⌕</span><input id="search" type="search" placeholder="Find a page" aria-label="Find a page"><kbd>⌘ K</kbd></label>
+      <div class="sidebar-label"><span id="pages-label">ON THIS DEVICE</span><span id="page-count">1</span></div>
+      <nav id="page-list" class="page-list" aria-label="Pages"></nav>
+      <div id="list-message" class="list-message" hidden></div>
+      <div class="sidebar-bottom">
+        <button class="sidebar-action" id="import-button"><span aria-hidden="true">↥</span> Import Markdown <span class="file-hint">.md</span></button>
+        <button class="sidebar-action" id="connect-button"><span aria-hidden="true">⌘</span> Connect your tools <span class="new-badge">MCP</span></button>
+        <button class="sidebar-action" id="guest-upload" hidden><span aria-hidden="true">↑</span> Bring device pages to cloud</button>
+        <div class="account-card" id="account-card"><span class="avatar" id="avatar" aria-hidden="true">○</span><button id="account-button"><strong id="account-name">Your own little space</strong><span id="account-detail">Sign up to keep pages everywhere</span></button><button class="icon-button" id="theme-button" aria-label="Switch color theme" title="Switch color theme">◐</button></div>
+      </div>
+    </aside>
+    <main class="main">
+      <header class="topbar">
+        <div class="breadcrumb"><button class="icon-button" id="sidebar-toggle" aria-label="Toggle pages" title="Toggle pages">☰</button><span class="breadcrumb-home">Pages</span><span class="crumb-slash">/</span><span id="breadcrumb-title">Untitled</span></div>
+        <div class="page-actions"><span class="save-state" id="save-state" role="status">Saved on this device</span><button class="icon-button" id="outline-button" aria-label="Show contents" aria-pressed="false" title="Contents">☷</button><button class="icon-button source-button" id="source-button" aria-label="Edit Markdown source" aria-pressed="false" title="Markdown source">&lt;/&gt;</button><button class="icon-button" id="focus-button" aria-label="Focus mode" aria-pressed="false" title="Focus mode">⛶</button><div class="menu-wrap"><button class="icon-button" id="more-button" aria-label="Page options" aria-expanded="false">···</button><div class="dropdown" id="page-menu" hidden><button id="export-button">↓ Export Markdown</button><button id="duplicate-button">▧ Make a copy</button><button id="wide-button">↔ Widen page</button><button id="delete-button" class="danger">Delete page</button></div></div></div>
+      </header>
+      <div id="notice" class="notice" role="status" hidden><span id="notice-text"></span><button id="notice-action" hidden></button><button id="notice-close" aria-label="Dismiss notice">×</button></div>
+      <div class="writing-area" id="writing-area">
+        <article class="paper" id="paper">
+          <div class="page-eyebrow"><span class="tiny-page" aria-hidden="true">▤</span><span id="document-date">A FRESH PAGE</span></div>
+          <label class="sr-only" for="page-title">Page title</label><input id="page-title" class="page-title" placeholder="Untitled" maxlength="240" autocomplete="off" spellcheck="true">
+          <div id="editor" class="editor prose" contenteditable="true" role="textbox" aria-label="Page content" aria-multiline="true" data-placeholder="Start writing. Make room for a thought." spellcheck="true"></div>
+          <label for="source" class="sr-only">Markdown source</label><textarea id="source" class="source-editor" spellcheck="false" placeholder="Your Markdown, just as it is." hidden></textarea>
+          <div class="blank-hint" id="blank-hint"><span>Just you and the page.</span><span>Select text to format · Drop a .md file to import</span></div>
+        </article>
+        <aside class="outline" id="outline" aria-label="Table of contents" hidden><div class="sidebar-label">ON THIS PAGE</div><nav id="outline-list"></nav></aside>
+      </div>
+      <footer class="statusbar"><span><span class="status-dot" id="status-dot"></span><span id="storage-label">Private on this device</span></span><span id="word-count">0 words</span><span class="footer-right">a little space to think</span></footer>
+    </main>
+  </div>
+  <div class="format-toolbar" id="format-toolbar" role="toolbar" aria-label="Format selected text" hidden>
+    <select id="text-style" aria-label="Text style"><option value="paragraph">Text</option><option value="h1">Heading 1</option><option value="h2">Heading 2</option><option value="h3">Heading 3</option><option value="quote">Quote</option><option value="ul">Bullet list</option><option value="ol">Numbered list</option></select><span class="toolbar-separator"></span><button data-format="bold" aria-label="Bold" title="Bold (⌘ B)"><b>B</b></button><button data-format="italic" aria-label="Italic" title="Italic (⌘ I)"><i>I</i></button><button data-format="strike" aria-label="Strikethrough" title="Strikethrough"><s>S</s></button><button data-format="code" aria-label="Inline code" title="Inline code">&lt;&gt;</button><span class="toolbar-separator"></span><button data-format="link" aria-label="Add link" title="Add link">↗</button>
+  </div>
+  <div class="drop-zone" id="drop-zone" hidden><div><span>↥</span><strong>A new home for your Markdown.</strong><p>Drop .md, .markdown, or .txt files to import.</p></div></div>
+  <input id="file-input" type="file" accept=".md,.markdown,.txt,text/markdown,text/plain" multiple hidden>
+  <dialog id="auth-dialog" class="modal auth-modal" aria-labelledby="auth-heading">
+    <button class="modal-close" data-close="auth-dialog" aria-label="Close">×</button><div class="modal-mark">s.</div><p class="eyebrow">YOUR WORDS, WITH YOU</p><h2 id="auth-heading">Make yourself at home.</h2><p id="auth-description" class="muted">Keep your pages in sync, and bring them to the tools you love.</p>
+    <div class="segmented" id="auth-tabs"><button type="button" id="signup-tab" aria-pressed="true">Create account</button><button type="button" id="signin-tab" aria-pressed="false">Sign in</button></div>
+    <form id="auth-form"><label for="email">Email address</label><input id="email" type="email" autocomplete="email" placeholder="you@example.com" required><label for="password" id="password-label">Password</label><input id="password" type="password" autocomplete="new-password" minlength="8" maxlength="128" placeholder="At least 8 characters" required><p id="auth-error" class="form-message" role="status"></p><button class="primary-button" id="auth-submit" type="submit">Create your space <span>→</span></button><button class="text-button" id="recover-button" type="button">Forgot your password?</button></form>
+    <p class="modal-footnote">No email confirmation is required. Password reset emails are not available yet, so keep your password safe. Your device pages stay here until you choose to bring them to the cloud.</p>
+  </dialog>
+  <dialog id="account-dialog" class="modal" aria-labelledby="account-heading"><button class="modal-close" data-close="account-dialog" aria-label="Close">×</button><p class="eyebrow">YOUR SPACE</p><h2 id="account-heading">A home for your words.</h2><p id="account-email" class="muted"></p><p>Private pages, saved to your account. Export a Markdown copy whenever you like.</p><button class="primary-button" id="account-connect">Connect your tools →</button><button class="text-button danger" id="signout-button">Sign out on this device</button></dialog>
+  <dialog id="connect-dialog" class="modal connect-modal" aria-labelledby="connect-heading"><button class="modal-close" data-close="connect-dialog" aria-label="Close">×</button><p class="eyebrow">AN OPEN DOOR, ON YOUR TERMS</p><h2 id="connect-heading">Your pages. Your tools.</h2><p class="muted">Let Cursor, Codex, Claude Desktop, and other MCP clients work with your pages using a personal access token.</p><label for="mcp-url">MCP endpoint</label><div class="copy-row"><input id="mcp-url" readonly><button id="copy-endpoint">Copy</button></div><p class="small muted">Connect with Streamable HTTP and a Bearer token. For Claude Desktop, use the included Node bridge. OAuth connections are not available.</p><div id="connect-guest"><button class="primary-button" id="connect-signup">Create an account to connect →</button></div><div id="connect-account" hidden><form id="token-form"><div class="form-grid"><div><label for="token-name">Token name</label><input id="token-name" placeholder="My Cursor" maxlength="80" required></div><div><label for="token-scope">Access</label><select id="token-scope"><option value="read">Read pages</option><option value="write">Read & write pages</option></select></div></div><button class="primary-button" id="create-token" type="submit">Create a token <span>＋</span></button><p class="small muted">Tokens expire after 90 days. Revoke access at any time.</p></form><div id="token-secret" class="token-secret" hidden><strong>Copy this token now.</strong><p>It will only be shown once.</p><div class="copy-row"><input id="token-value" readonly aria-label="New personal access token"><button id="copy-token">Copy</button></div></div><p id="token-message" class="form-message" role="status"></p><div id="token-list" class="token-list"></div></div><details class="connection-help"><summary>Connection instructions</summary><p>In Cursor or Codex, add the endpoint above as a remote MCP server. Set <code>Authorization: Bearer YOUR_TOKEN</code>.</p><p>For clients using local stdio, clone the GitHub repository and configure <code>node scripts/mcp-stdio.mjs</code> with <code>STILL_MCP_URL</code> and <code>STILL_MCP_TOKEN</code> environment variables.</p><a href="https://github.com/alvarovillalbaa/still-markdown/blob/main/docs/mcp.md" target="_blank" rel="noopener noreferrer">Full connection guide ↗</a></details></dialog>
+  <dialog id="link-dialog" class="modal small-modal" aria-labelledby="link-heading"><button class="modal-close" data-close="link-dialog" aria-label="Close">×</button><h2 id="link-heading">Add a link</h2><form id="link-form"><label for="link-url">Link address</label><input id="link-url" type="url" placeholder="https://example.com" required><p class="form-message" id="link-error" role="status"></p><button class="primary-button" type="submit">Apply link →</button></form></dialog>
+  <dialog id="confirm-dialog" class="modal small-modal" aria-labelledby="confirm-heading"><h2 id="confirm-heading">Delete this page?</h2><p id="confirm-description">This removes the page. Export a copy first if you want to keep it.</p><div class="button-row"><button class="secondary-button" data-close="confirm-dialog">Keep page</button><button class="primary-button destructive" id="confirm-delete">Delete page</button></div></dialog>
+</body>
+</html>

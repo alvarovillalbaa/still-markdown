@@ -1,0 +1,13 @@
+{
+  "name": "still-markdown",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "description": "A quiet, first-party Markdown editor with private cloud pages and MCP access.",
+  "engines": { "node": ">=22" },
+  "scripts": {
+    "check": "node scripts/check.mjs",
+    "dev": "node scripts/dev.mjs",
+    "mcp": "node scripts/mcp-stdio.mjs"
+  }
+}

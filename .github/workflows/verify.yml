@@ -1,0 +1,60 @@
+name: Verify Still
+on:
+  push:
+    branches: [main]
+  pull_request:
+  workflow_dispatch:
+permissions:
+  contents: read
+concurrency:
+  group: still-verify-${{ github.ref }}
+  cancel-in-progress: false
+jobs:
+  focused:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '24'
+      - run: npm run check
+      - run: node --test scripts/*.test.mjs
+      - run: git diff --check
+  hosted:
+    if: github.event_name != 'pull_request'
+    needs: focused
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    env:
+      BASE_URL: https://still-markdown.vercel.app
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '24'
+      - name: Wait for this exact production revision
+        env:
+          EXPECTED_REVISION: ${{ github.sha }}
+        run: node scripts/wait-deployment.mjs
+      - name: Verify live signup, private storage, and MCP
+        run: node scripts/verify-live.mjs --allow-live --endpoint="$BASE_URL/api/mcp"
+      - name: Install isolated browser test tools
+        run: npm install --prefix "$RUNNER_TEMP/still-browser-tools" --no-package-lock --no-audit --no-fund playwright@1.63.0
+      - name: Install Chromium
+        run: node "$RUNNER_TEMP/still-browser-tools/node_modules/playwright/cli.js" install --with-deps chromium
+      - name: Verify desktop and mobile browser flows
+        env:
+          PLAYWRIGHT_MODULE: ${{ runner.temp }}/still-browser-tools/node_modules/playwright/index.mjs
+        run: node scripts/browser-verify.mjs
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: still-verification
+          path: artifacts/
+          if-no-files-found: ignore
+          retention-days: 7
