@@ -1,0 +1,165 @@
+{
+  "checkedAt": "2026-10-21 06:37:23 UTC",
+  "status": "editing_published_auth_activation_deferred",
+  "application": "Still",
+  "repository": "https://github.com/alvarovillalbaa/still-markdown",
+  "runtimeCommit": "4914dc893e5e73dc022d7543e0e9cc5f1730eeae",
+  "vercel": {
+    "teamId": "team_JpdIsOJgYNpX0ywVZ54Zdb7m",
+    "projectId": "prj_vWkpSpT7FnmcCGADAfHaBPE0XB4t",
+    "deploymentId": "dpl_AyxBQhj6fWeLzJ7HeDT2AXwH6sBM",
+    "state": "READY",
+    "target": "production",
+    "url": "https://still-markdown.vercel.app",
+    "nodeVersion": "24.x",
+    "region": "fra1"
+  },
+  "requirements": [
+    {
+      "requirement": "In-house Markdown editor with no existing editor or Markdown framework",
+      "status": "verified",
+      "evidence": "No runtime dependencies; first-party public/markdown.js and public/editor.js; parser/security checks and rich-edit browser proof."
+    },
+    {
+      "requirement": "Blank page and continuous writing without a block-type system",
+      "status": "verified",
+      "evidence": "Native contenteditable; canonical title plus Markdown text; inspected desktop/mobile rendered screenshots and native typing checks."
+    },
+    {
+      "requirement": "Notion-like selected-text tooltip",
+      "status": "verified",
+      "evidence": "Hosted browser selection and toolbar bold test passed. Canvas reference inspected read-only in clous-ai/cloush-frontend."
+    },
+    {
+      "requirement": "Users can sign up",
+      "status": "pending_owner_deferred_configuration",
+      "evidence": "Auth/settings returns mailer_autoconfirm false. UI displays cloud setup state. Owner deferred completing this setting."
+    },
+    {
+      "requirement": "Users access their Markdown from external MCP clients",
+      "status": "implemented_live_proof_pending",
+      "evidence": "Authenticated Streamable HTTP endpoint, scoped token SQL and stdio bridge are present. Mocked MCP contracts pass; live authenticated and external-client flows not yet proven."
+    },
+    {
+      "requirement": "Easy import of existing Markdown",
+      "status": "verified",
+      "evidence": "Hosted browser file import, exact CRLF source/export, untouched source-mode export, reload persistence, and first rich edit passed."
+    },
+    {
+      "requirement": "Upload to user's GitHub",
+      "status": "verified",
+      "evidence": "Public alvarovillalbaa/still-markdown repository and deployed runtime commit."
+    },
+    {
+      "requirement": "Publish to Vercel",
+      "status": "verified",
+      "evidence": "READY production deployment, public browser requests, revision-matched /api/config."
+    }
+  ],
+  "localChecks": {
+    "syntaxJsonElementReferences": "passed",
+    "focusedTests": {
+      "passed": 53,
+      "failed": 0,
+      "command": "node --test scripts/*.test.mjs"
+    },
+    "gitDiffCheck": "passed",
+    "runtimePackageDependencies": 0
+  },
+  "hostedVerification": {
+    "runId": 39556247922,
+    "url": "https://github.com/alvarovillalbaa/still-markdown/actions/runs/39556247922",
+    "focusedJob": "success",
+    "liveJob": "failed_at_deferred_auth_configuration",
+    "browserJob": "failed_after_guest_checks_at_deferred_auth_configuration",
+    "browserChecksPassed": [
+      "Desktop blank page and native typing",
+      "Selected-text toolbar bold formatting",
+      "Exact source input",
+      "Markdown import and byte-preserving CRLF export, including untouched source mode and reload",
+      "First rich edit retains tasks, nested lists, code, titles, and escaped unsafe markup",
+      "Search and focus mode",
+      "Mobile writing, sidebar, modal focus loop, viewport fit, and reload persistence"
+    ],
+    "browserUncaughtErrors": [],
+    "browserArtifactsId": 12325852522,
+    "liveArtifactsId": 12325797890,
+    "visualReview": "Desktop blank/rich and mobile writing/dialog screenshots inspected."
+  },
+  "httpChecks": [
+    {
+      "path": "/",
+      "status": 200,
+      "evidence": "Public Playwright load and rendered editor checks."
+    },
+    {
+      "path": "/api/config",
+      "status": 200,
+      "revision": "4914dc893e5e73dc022d7543e0e9cc5f1730eeae"
+    },
+    {
+      "path": "/api/health",
+      "status": 200,
+      "emailConfirmationRequired": true,
+      "note": "Reachability and configuration only; does not prove signup or storage."
+    },
+    {
+      "path": "/api/mcp",
+      "method": "GET",
+      "status": 405,
+      "note": "Expected for JSON POST-only Streamable HTTP without SSE."
+    }
+  ],
+  "supabase": {
+    "projectId": "wosqlzijmyiemueoittw",
+    "organization": "Clous",
+    "quotedNewProjectCostUSDPerMonth": 0,
+    "migration": {
+      "version": "20261020192429",
+      "name": "initial_still_documents_and_mcp"
+    },
+    "schemaInspection": {
+      "rlsEnabled": [
+        "documents",
+        "mcp_tokens"
+      ],
+      "anonymousTableSelect": false,
+      "authenticatedDirectTableUpdate": false,
+      "authenticatedCanReadTokenHash": false
+    },
+    "securityAdvisories": {
+      "intentionalDefinerWarnings": 3,
+      "functions": [
+        "public.save_document",
+        "public.mcp_dispatch"
+      ],
+      "note": "Public callable wrappers are intentional; owner/capability checks are explicit and private helpers revoked. Live two-account proof remains pending."
+    },
+    "lastResidueCheck": {
+      "users": 0,
+      "documents": 0,
+      "tokens": 0
+    }
+  },
+  "deferred": {
+    "ownerInstruction": "We can do it later.",
+    "item": "Apply chosen signup confirmation policy or configure production email delivery.",
+    "nextSteps": [
+      "Complete the approved Auth setting in the dedicated Still project, or configure verified custom SMTP if confirmation should remain required.",
+      "Confirm /api/health reports the intended policy, then rerun Verify Still via workflow_dispatch.",
+      "Pass real signup, A/B ownership checks, token scopes/expiry/revocation, browser account sync, and live MCP read/write; remove synthetic Auth users by exact cleanup IDs."
+    ]
+  },
+  "limitations": [
+    "Markdown rendering is a documented first-party subset; rich edits can normalize supported syntax. Source mode preserves unsupported extensions.",
+    "MCP uses manually supplied bearer tokens; OAuth-only remote clients are not supported.",
+    "Password reset delivery is not configured and its UI remains hidden.",
+    "Browser storage clearing removes guest-only documents."
+  ],
+  "storageGuard": {
+    "freeGiB": 9.1,
+    "requiredGiB": 34,
+    "result": "failed",
+    "action": "No local dependency installation, build, or browser environment; isolated hosted CI tools used with explicit owner authorization."
+  }
+}

@@ -6,8 +6,10 @@ block data model and no external Markdown parser, editor framework, SDK, or
 runtime dependency. HTML, CSS, JavaScript, native Selection/Range, and Node APIs
 implement the app.
 
-Deployment target: [still-markdown.vercel.app](https://still-markdown.vercel.app).
-This is a target address; a verified deployment receipt is still pending.
+Live editor: [still-markdown.vercel.app](https://still-markdown.vercel.app).
+Device editing is verified on desktop and mobile. Cloud signup activation is
+waiting for the Auth setting deferred by the owner; account-backed MCP remains
+unverified. See the [release receipt](docs/deployment-verification.json).
 
 ## What you can do
 
@@ -56,10 +58,14 @@ then set the public environment variables. Vercel serves `public/` and the two
 HTTP functions using [vercel.json](vercel.json); install and build commands are
 empty.
 
-The launch auth policy is user-approved immediate signup with email confirmation
-disabled. Email ownership is therefore unverified. Password-reset UI and client
-handling exist, but recovery requires custom SMTP configuration and verified
-email delivery; recovery is not established as operational.
+The chosen launch policy is immediate signup without email confirmation, approved
+by the owner. That setting is still pending: the live Auth API currently reports
+confirmation required. The owner deferred this configuration step. The signup
+form checks live readiness and explains that cloud signup is waiting, while
+device pages stay usable. Applying the approved setting does not verify email
+ownership. Password-reset handlers remain hidden until custom SMTP, allowed
+redirects, and real delivery have been verified and
+`PASSWORD_RECOVERY_ENABLED=true` is set.
 
 ## Persistence and connections
 
@@ -84,8 +90,12 @@ node --test scripts/*.test.mjs
 git diff --check
 ```
 
-These checks cover syntax, JSON, element references, and focused parser/MCP
-contracts. They do not establish browser behavior, database isolation, email
-delivery, external MCP-client compatibility, or a hosted deployment. Runtime
-proof and the deployment receipt are pending. See
+All 53 focused tests pass. Hosted browser checks verified desktop/mobile writing,
+selection formatting, source preservation, CRLF imports/exports, reload
+persistence, search, focus mode, safe rich rendering, and modal focus.
+The [hosted run](https://github.com/alvarovillalbaa/still-markdown/actions/runs/39556247922)
+remains failed at the intentionally visible cloud-readiness gate. Live signup,
+two-account isolation, and authenticated MCP are pending the deferred Auth setup;
+mocked tests and schema inspection do not prove those flows. See the
+[release receipt](docs/deployment-verification.json) and
 [architecture and boundaries](docs/architecture.md).

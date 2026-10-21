@@ -62,10 +62,12 @@ insert/update grants are absent; the `save_document` RPC derives ownership from
 `auth.uid()`. Sessions refresh through the first-party client; browser storage
 holds recoverable session credentials.
 
-The initial auth policy permits immediate signup without email confirmation,
-as approved by the user. It does not prove email ownership. Recovery handlers
-exist, but custom SMTP and an end-to-end delivery check are still required before
-password recovery can be called operational.
+The approved initial auth policy permits immediate signup without email
+confirmation. Applying that setting was deferred by the user; the live project
+still requires confirmation. The signup UI reads live health and displays a
+setup state rather than promising an immediate account. Email ownership will be
+unverified under the chosen initial policy. Recovery handlers stay hidden until
+custom SMTP and an end-to-end delivery check are complete.
 
 ## MCP and hosting
 
@@ -82,7 +84,12 @@ functions. Public fallback settings are in `lib/project.js`; environment values
 can override them. Neither path uses a service-role key. `scripts/dev.mjs` serves
 the same handlers and static files locally without a build.
 
-Deployment target: `https://still-markdown.vercel.app`. The production receipt and
-runtime verification are pending. Focused Node checks prove only their covered
-contracts; browser persistence/formatting, live RLS isolation, signup, email
-delivery, external MCP clients, and production routing need separate evidence.
+Production is `https://still-markdown.vercel.app`. The
+[release receipt](deployment-verification.json) records the exact deployed code
+and proof boundaries. Desktop/mobile editing and imports/exports have hosted
+browser evidence. The database migration and RLS/grants are installed; live
+account isolation, signup, and authenticated external MCP still await Auth setup.
+The database advisor flags the intentionally callable SECURITY DEFINER RPCs:
+`save_document` derives its owner from `auth.uid()`, and `mcp_dispatch` validates
+the opaque capability before every operation. Private helpers are not exposed.
+These reviewed definitions still need the real two-account verification suite.
