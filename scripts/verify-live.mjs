@@ -1,6 +1,8 @@
 #!/usr/bin/env node
 // Deliberately opt-in: this creates disposable real Auth accounts and private data.
 import { createHash, randomBytes, randomUUID } from 'node:crypto';
+import { mkdir, writeFile } from 'node:fs/promises';
+import { resolve } from 'node:path';
 import mcpHandler from '../api/mcp.js';
 import { publicConfig } from '../lib/supabase.js';
 
@@ -34,6 +36,9 @@ const TOKEN_FIELDS = 'id,user_id,name,scope,expires_at,created_at';
 const checks = [];
 const accounts = [];
 const cleanup = [];
+const diagnostics = [];
+const secretValues = new Set([config.publishableKey]);
+let authSettings;
 let failure;
 let nextRpcId = 1;
 const deadline = new AbortController();
@@ -45,13 +50,48 @@ function check(condition, name) {
 }
 function phase(name) { process.stdout.write(`${JSON.stringify({ event: 'live_verification_phase', phase: name })}\n`); }
 function safeAccount(account) { return { id: account.id || null, email: account.email }; }
+function trackSensitive(value, depth = 0) {
+  if (!value || typeof value !== 'object' || depth > 4) return;
+  for (const [key, item] of Object.entries(value)) {
+    if (typeof item === 'string' && /password|token|authorization|apikey|secret/i.test(key) && item.length > 3) {
+      secretValues.add(item);
+      if (/^Bearer /i.test(item)) secretValues.add(item.slice(7));
+    } else if (item && typeof item === 'object') trackSensitive(item, depth + 1);
+  }
+}
+function safePublicMessage(value) {
+  let message = typeof value === 'string' ? value : '';
+  for (const secret of secretValues) message = message.split(secret).join('[redacted]');
+  return message
+    .replace(/(?:sb_(?:secret|publishable)_[A-Za-z0-9_-]+|still_[A-Za-z0-9_-]+|eyJ[A-Za-z0-9_-]+\.[A-Za-z0-9_-]+\.[A-Za-z0-9_-]+)/g, '[redacted]')
+    .replace(/\b(?:Bearer|Basic)\s+[A-Za-z0-9_.~+/=-]+/gi, '[redacted authorization]')
+    .replace(/(?:password|access_token|refresh_token|token_hash|api[_-]?key|authorization|secret)["']?\s*[:=]\s*(?:"[^"]*"|'[^']*'|[^\s,;&<>]+)/gi, '[redacted credential]')
+    .replace(/https?:\/\/[^\s"'<>]+/gi, (value) => { try { const url = new URL(value); return `${url.origin}${url.pathname}`; } catch { return '[URL]'; } })
+    .replace(/[A-Z0-9.!#$%&'*+/=?^_`{|}~-]+@[A-Z0-9.-]+\.[A-Z]{2,}/gi, '[email]')
+    .replace(/[A-Za-z0-9_-]{32,}/g, '[redacted long value]')
+    .replace(/<[^>]{0,1000}>/g, ' ')
+    .replace(/[\u0000-\u001f\u007f]/g, ' ')
+    .replace(/\s+/g, ' ').trim().slice(0, 240);
+}
+function publicError(data) {
+  const value = data?.msg || data?.message || data?.error_description || data?.error?.message || data?.error;
+  return safePublicMessage(typeof value === 'string' ? value : '');
+}
+function publicCode(value) {
+  if (typeof value === 'number' && Number.isFinite(value)) return value;
+  if (typeof value === 'string' && /^[A-Za-z0-9_-]{1,80}$/.test(value) && safePublicMessage(value) === value) return value;
+  return undefined;
+}
 function statusHint(result) {
-  const value = result.data?.code || result.data?.error_code;
-  const code = typeof value === 'string' && /^[A-Za-z0-9_]{1,80}$/.test(value) ? `, code ${value}` : '';
-  return `HTTP ${result.status}${code}`;
+  const value = publicCode(result.data?.code ?? result.data?.error_code ?? result.data?.error?.code);
+  const code = value === undefined ? '' : `, code ${value}`;
+  const message = result.diagnostic?.message || (!result.ok ? publicError(result.data) : '');
+  return `HTTP ${result.status}${code}${message ? `, message ${message}` : ''}`;
 }
 
 async function http(url, { method = 'GET', headers = {}, body, cleanupRequest = false } = {}) {
+  trackSensitive(headers);
+  trackSensitive(body);
   let response;
   try {
     response = await fetch(url, {
@@ -75,8 +115,23 @@ async function http(url, { method = 'GET', headers = {}, body, cleanupRequest = 
     text = Buffer.concat(chunks).toString('utf8');
   } catch { throw new Error('Live HTTP response was interrupted or exceeded its limit.'); }
   let data = null;
-  try { if (text.trim()) data = JSON.parse(text); } catch { /* No response text is ever logged. */ }
-  return { status: response.status, ok: response.ok, data };
+  let parsed = false;
+  try { if (text.trim()) { data = JSON.parse(text); parsed = true; } } catch { /* Only a sanitized error excerpt can enter the report. */ }
+  trackSensitive(data);
+  let diagnostic;
+  if (!response.ok) {
+    const code = publicCode(data?.code ?? data?.error_code ?? data?.error?.code);
+    diagnostic = {
+      operation: `${method} ${new URL(url).pathname}`,
+      status: response.status,
+      content_type: safePublicMessage(response.headers.get('content-type') || '').slice(0, 96),
+      json_kind: parsed ? (data === null ? 'null' : Array.isArray(data) ? 'array' : typeof data) : text.trim() ? 'unparsed' : 'empty',
+      ...(code === undefined ? {} : { code }),
+      message: publicError(data) || safePublicMessage(text),
+    };
+    if (diagnostics.length < 100) diagnostics.push(diagnostic);
+  }
+  return { status: response.status, ok: response.ok, data, ...(diagnostic ? { diagnostic } : {}) };
 }
 
 function api(path, { account, ...options } = {}) {
@@ -207,6 +262,20 @@ async function verifyMcp(label, send, { a, b, aPage, bPage, readToken, writeToke
 }
 
 try {
+  phase('auth_settings_preflight');
+  const settings = await api('/auth/v1/settings');
+  const flag = (value) => typeof value === 'boolean' ? value : null;
+  authSettings = {
+    status: settings.status,
+    email_provider_enabled: flag(settings.data?.external?.email),
+    disable_signup: flag(settings.data?.disable_signup),
+    mailer_autoconfirm: flag(settings.data?.mailer_autoconfirm),
+    phone_autoconfirm: flag(settings.data?.phone_autoconfirm),
+  };
+  process.stdout.write(`${JSON.stringify({ event: 'public_auth_settings_preflight', ...authSettings, ...(!settings.ok ? { error: statusHint(settings) } : {}) })}\n`);
+  check(settings.ok && settings.data && typeof settings.data === 'object', `public Auth settings are reachable (${statusHint(settings)})`);
+  check(authSettings.email_provider_enabled === true && authSettings.disable_signup === false, 'public Auth settings enable email signup');
+  check(authSettings.mailer_autoconfirm === true, 'public Auth settings confirm signup will not require or send a confirmation email');
   phase('signup_and_sessions');
   const a = await createAccount('a');
   const b = await createAccount('b');
@@ -314,9 +383,19 @@ const cleanupComplete = cleanup.length === accounts.length && cleanup.every((ent
 const report = {
   event: 'still_live_verification_report', passed: !failure && cleanupComplete,
   project: new URL(config.url).hostname, endpoint: endpoint?.href || null, prefix,
+  auth_settings: authSettings || null, diagnostics,
   checks_passed: checks.length, checks, ...(failure ? { failure } : {}),
   accounts_requiring_admin_deletion: accounts.map(safeAccount), cleanup,
   proof_boundary: endpoint ? 'Real public signup/signin, REST ownership/version enforcement, and imported plus hosted HTTP MCP. Browser UI and email delivery are not exercised.' : 'Real public signup/signin, REST ownership/version enforcement, and imported MCP handler against live Supabase. Hosted HTTP and browser UI are not exercised.',
+  evidence_artifact: 'artifacts/live-evidence.json',
 };
+try {
+  const artifactDirectory = resolve('artifacts');
+  await mkdir(artifactDirectory, { recursive: true });
+  await writeFile(resolve(artifactDirectory, 'live-evidence.json'), `${JSON.stringify(report, null, 2)}\n`, { mode: 0o600 });
+} catch {
+  report.passed = false;
+  report.evidence_artifact_error = 'Could not write the safe live evidence artifact.';
+}
 process.stdout.write(`${JSON.stringify(report)}\n`);
 if (!report.passed) throw new Error('Live verification failed; see the safe JSON report and clean up its synthetic Auth account IDs.');
