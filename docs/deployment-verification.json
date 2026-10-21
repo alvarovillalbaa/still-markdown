@@ -1,13 +1,14 @@
 {
-  "checkedAt": "2026-10-21 06:37:23 UTC",
+  "checkedAt": "2026-10-21 06:56:15 UTC",
   "status": "editing_published_auth_activation_deferred",
   "application": "Still",
   "repository": "https://github.com/alvarovillalbaa/still-markdown",
-  "runtimeCommit": "4914dc893e5e73dc022d7543e0e9cc5f1730eeae",
+  "runtimeCommit": "9c5de26beb1218e55b99fcc06f5d110a7bb8bb89",
+  "runtimeCommitNote": "Revision used by hosted verification. Later documentation-only commits may deploy the same runtime files.",
   "vercel": {
     "teamId": "team_JpdIsOJgYNpX0ywVZ54Zdb7m",
     "projectId": "prj_vWkpSpT7FnmcCGADAfHaBPE0XB4t",
-    "deploymentId": "dpl_AyxBQhj6fWeLzJ7HeDT2AXwH6sBM",
+    "deploymentId": "dpl_GVtZbT7Ah4eC6Duw67LNc5oWFzGy",
     "state": "READY",
     "target": "production",
     "url": "https://still-markdown.vercel.app",
@@ -38,7 +39,7 @@
     {
       "requirement": "Users access their Markdown from external MCP clients",
       "status": "implemented_live_proof_pending",
-      "evidence": "Authenticated Streamable HTTP endpoint, scoped token SQL and stdio bridge are present. Mocked MCP contracts pass; live authenticated and external-client flows not yet proven."
+      "evidence": "Streamable HTTP endpoint, scoped token SQL and stdio bridge are present. Installed database enforcement and native HTTP/stdio fixture checks pass; real Auth sessions and authenticated external-client flows remain unproven."
     },
     {
       "requirement": "Easy import of existing Markdown",
@@ -80,9 +81,12 @@
     "runtimePackageDependencies": 0
   },
   "hostedVerification": {
-    "runId": 39556247922,
-    "url": "https://github.com/alvarovillalbaa/still-markdown/actions/runs/39556247922",
+    "runId": 39558387109,
+    "url": "https://github.com/alvarovillalbaa/still-markdown/actions/runs/39558387109",
     "focusedJob": "success",
+    "focusedTests": { "passed": 69, "failed": 0, "skipped": 0 },
+    "focusedJobId": 119083496962,
+    "bridgeProof": "14 mocked-HTTP actual-stdio cases plus 2 native HTTP/stdio cases passed, including bearer forwarding, silent notifications and redirect rejection. Fixture endpoints are not live authenticated Still accounts.",
     "liveJob": "failed_at_deferred_auth_configuration",
     "browserJob": "failed_after_guest_checks_at_deferred_auth_configuration",
     "browserChecksPassed": [
@@ -95,9 +99,10 @@
       "Mobile writing, sidebar, modal focus loop, viewport fit, and reload persistence"
     ],
     "browserUncaughtErrors": [],
-    "browserArtifactsId": 12325852522,
-    "liveArtifactsId": 12325797890,
-    "visualReview": "Desktop blank/rich and mobile writing/dialog screenshots inspected."
+    "browserArtifactsId": 12326920883,
+    "browserArtifactSha256": "b43b8d9a4d43c49c451ce1043675f4cd1e8e17de60b15080cf3c1c287fd2a526",
+    "liveArtifactsId": 12326756362,
+    "visualReview": "Desktop blank/rich and mobile writing/dialog screenshots inspected for 4914dc893e5e73dc022d7543e0e9cc5f1730eeae; browser app files are unchanged. Current browser report inspected: 7 guest phases passed, no uncaught browser errors, account flow stopped at the Auth setup message."
   },
   "httpChecks": [
     {
@@ -108,7 +113,7 @@
     {
       "path": "/api/config",
       "status": 200,
-      "revision": "4914dc893e5e73dc022d7543e0e9cc5f1730eeae"
+      "revision": "9c5de26beb1218e55b99fcc06f5d110a7bb8bb89"
     },
     {
       "path": "/api/health",
@@ -164,7 +169,7 @@
         "public.save_document",
         "public.mcp_dispatch"
       ],
-      "note": "Public callable wrappers are intentional; owner/capability checks are explicit and private helpers revoked. Live two-account proof remains pending."
+      "note": "Public callable wrappers are intentional; owner/capability checks and private helper denial passed installed database tests under simulated claims. Real two-account Auth/HTTP proof remains pending."
     },
     "lastResidueCheck": {
       "users": 0,

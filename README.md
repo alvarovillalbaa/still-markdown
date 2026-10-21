@@ -92,10 +92,11 @@ git diff --check
 
 Local checks pass 67 tests; two real HTTP bridge tests explicitly skip because
 this sandbox cannot listen on a loopback socket. The bridge checks exercise real
-subprocess stdio with a mocked HTTP boundary. Hosted browser checks verified desktop/mobile writing,
-selection formatting, source preservation, CRLF imports/exports, reload
+subprocess stdio with a mocked HTTP boundary. Hosted CI passes all 69 tests,
+including both native HTTP/stdio bridge cases. Hosted browser checks verified
+desktop/mobile writing, selection formatting, source preservation, CRLF imports/exports, reload
 persistence, search, focus mode, safe rich rendering, and modal focus.
-The [hosted run](https://github.com/alvarovillalbaa/still-markdown/actions/runs/39556247922)
+The [hosted run](https://github.com/alvarovillalbaa/still-markdown/actions/runs/39558387109)
 remains failed at the intentionally visible cloud-readiness gate. Live signup,
 account sessions and authenticated MCP are pending the deferred Auth setup.
 Separately, [the rollback-only database harness](scripts/verify-database.sql)
@@ -104,6 +105,5 @@ role grants, token scopes/expiry/revocation, and sequential version conflicts.
 It simulates transaction-local claims, leaves no fixture rows, and does not prove
 signup, JWT validation, HTTP transport, or browser account sync. Run it only as a
 database administrator in the dedicated Still project; it makes no schema changes.
-See the
-[release receipt](docs/deployment-verification.json) and
+See the [release receipt](docs/deployment-verification.json) and
 [architecture and boundaries](docs/architecture.md).
