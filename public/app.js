@@ -448,6 +448,15 @@ document.addEventListener('dragover', (event) => { if ([...event.dataTransfer.ty
 document.addEventListener('drop', (event) => { if (!event.dataTransfer.files.length) return; event.preventDefault(); dragDepth = 0; $('drop-zone').hidden = true; importFiles(event.dataTransfer.files); });
 for (const button of document.querySelectorAll('[data-close]')) button.onclick = () => $(button.dataset.close).close();
 for (const dialog of document.querySelectorAll('dialog')) dialog.addEventListener('click', (event) => { if (event.target === dialog) { const rect = dialog.getBoundingClientRect(); if (event.clientX < rect.left || event.clientX > rect.right || event.clientY < rect.top || event.clientY > rect.bottom) dialog.close(); } });
+for (const dialog of document.querySelectorAll('dialog')) dialog.addEventListener('keydown', (event) => {
+  if (event.key !== 'Tab') return;
+  const controls = [...dialog.querySelectorAll('button,input,select,textarea,a[href],[tabindex]')]
+    .filter((element) => !element.disabled && element.tabIndex >= 0 && element.getClientRects().length);
+  if (!controls.length) { event.preventDefault(); return; }
+  const index = controls.indexOf(document.activeElement);
+  const next = index < 0 ? 0 : (index + (event.shiftKey ? -1 : 1) + controls.length) % controls.length;
+  event.preventDefault(); controls[next].focus();
+});
 $('account-button').onclick = () => { if (cloud.user) { $('account-email').textContent = cloud.user.email; $('account-dialog').showModal(); } else openAuth(); };
 $('signup-tab').onclick = () => setAuthMode('signup'); $('signin-tab').onclick = () => setAuthMode('signin');
 $('recover-button').onclick = () => setAuthMode(authMode === 'recover' ? 'signin' : 'recover');
