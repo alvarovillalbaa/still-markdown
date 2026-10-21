@@ -233,15 +233,57 @@ try {
     await desktop.locator('#focus-button').click();
   });
 
+  await step('mobile writing, sidebar, modal focus and viewport fit', async () => {
+    const mobileContext = await newContext({ viewport: { width: 390, height: 844 }, deviceScaleFactor: 2, isMobile: true, hasTouch: true });
+    const mobile = await mobileContext.newPage();
+    await ready(mobile);
+    assert.equal(await mobile.locator('#editor').textContent(), '');
+    await mobile.locator('#sidebar-toggle').click();
+    assert.match(await mobile.locator('#app').getAttribute('class'), /sidebar-open/);
+    await mobile.locator('#new-page').click();
+    await mobile.locator('#page-title').fill('Mobile browser proof');
+    await mobile.locator('#editor').click(); await mobile.keyboard.type('Room to write on a small screen.');
+    await textIs(mobile, '#editor', 'Room to write on a small screen.');
+    await noOverflow(mobile);
+    await screenshot(mobile, '04-mobile-writing.png');
+    await mobile.locator('#sidebar-toggle').click(); await mobile.locator('#account-button').click();
+    await mobile.locator('#auth-dialog').waitFor({ state: 'visible' });
+    for (let index = 0; index < 8; index++) {
+      assert.equal(await mobile.evaluate(() => Boolean(document.activeElement?.closest('#auth-dialog'))), true, 'Modal focus escaped its dialog.');
+      await mobile.keyboard.press('Tab');
+    }
+    const bounds = await mobile.locator('#auth-dialog').boundingBox();
+    assert.ok(bounds.x >= 0 && bounds.x + bounds.width <= 391, 'Mobile dialog exceeds viewport width.');
+    await noOverflow(mobile);
+    await screenshot(mobile, '05-mobile-dialog.png');
+    await mobile.locator('#auth-dialog [data-close]').click();
+    await mobile.locator('#close-sidebar').click();
+    assert.doesNotMatch(await mobile.locator('#app').getAttribute('class'), /sidebar-open/);
+    await mobile.reload({ waitUntil: 'load' });
+    await textIs(mobile, '#editor', 'Room to write on a small screen.');
+  });
+
   let cloudDocument;
   const cloudTitle = `Cloud browser proof ${run}`;
   const cloudText = `Private cloud browser page ${run}`;
   await step('browser signup and private cloud save', async () => {
+    activePage = desktop;
     await desktop.locator('#account-button').click();
     await desktop.locator('#email').fill(email);
     await desktop.locator('#password').fill(password);
+    await desktop.waitForFunction(() => !document.querySelector('#auth-submit').disabled
+      || Boolean(document.querySelector('#auth-error').textContent.trim()), null, { timeout: 15_000 });
+    if (await desktop.locator('#auth-submit').isDisabled()) {
+      evidence.auth_message = scrub((await desktop.locator('#auth-error').textContent()).trim().slice(0, 500));
+      throw new Error(`Signup readiness is pending: ${evidence.auth_message}`);
+    }
     await desktop.locator('#auth-submit').click();
-    await desktop.waitForFunction(() => !document.querySelector('#auth-dialog').open, null, { timeout: 30_000 });
+    await desktop.waitForFunction(() => !document.querySelector('#auth-dialog').open
+      || Boolean(document.querySelector('#auth-error').textContent.trim()), null, { timeout: 30_000 });
+    if (await desktop.locator('#auth-dialog').evaluate((dialog) => dialog.open)) {
+      evidence.auth_message = scrub((await desktop.locator('#auth-error').textContent()).replace(/[\u0000-\u001f]/g, ' ').trim().slice(0, 500));
+      throw new Error(`Signup did not produce an immediate signed-in session. Auth message: ${evidence.auth_message}`);
+    }
     await textIs(desktop, '#account-name', email, 30_000);
     await desktop.waitForFunction(() => !document.querySelector('#new-page').disabled);
     await desktop.locator('#page-title').fill(cloudTitle);
@@ -329,36 +371,6 @@ try {
     await desktop.locator('#signout-button').click();
     await textIs(desktop, '#account-name', 'Your own little space', 30_000);
     await textIs(desktop, '#breadcrumb-title', `Browser import ${run}`, 30_000);
-  });
-
-  await step('mobile writing, sidebar, modal focus and viewport fit', async () => {
-    const mobileContext = await newContext({ viewport: { width: 390, height: 844 }, deviceScaleFactor: 2, isMobile: true, hasTouch: true });
-    const mobile = await mobileContext.newPage();
-    await ready(mobile);
-    assert.equal(await mobile.locator('#editor').textContent(), '');
-    await mobile.locator('#sidebar-toggle').click();
-    assert.match(await mobile.locator('#app').getAttribute('class'), /sidebar-open/);
-    await mobile.locator('#new-page').click();
-    await mobile.locator('#page-title').fill('Mobile browser proof');
-    await mobile.locator('#editor').click(); await mobile.keyboard.type('Room to write on a small screen.');
-    await textIs(mobile, '#editor', 'Room to write on a small screen.');
-    await noOverflow(mobile);
-    await screenshot(mobile, '04-mobile-writing.png');
-    await mobile.locator('#sidebar-toggle').click(); await mobile.locator('#account-button').click();
-    await mobile.locator('#auth-dialog').waitFor({ state: 'visible' });
-    for (let index = 0; index < 8; index++) {
-      assert.equal(await mobile.evaluate(() => Boolean(document.activeElement?.closest('#auth-dialog'))), true, 'Modal focus escaped its dialog.');
-      await mobile.keyboard.press('Tab');
-    }
-    const bounds = await mobile.locator('#auth-dialog').boundingBox();
-    assert.ok(bounds.x >= 0 && bounds.x + bounds.width <= 391, 'Mobile dialog exceeds viewport width.');
-    await noOverflow(mobile);
-    await screenshot(mobile, '05-mobile-dialog.png');
-    await mobile.locator('#auth-dialog [data-close]').click();
-    await mobile.locator('#close-sidebar').click();
-    assert.doesNotMatch(await mobile.locator('#app').getAttribute('class'), /sidebar-open/);
-    await mobile.reload({ waitUntil: 'load' });
-    await textIs(mobile, '#editor', 'Room to write on a small screen.');
   });
 
   await step('no uncaught browser errors', async () => assert.deepEqual(browserErrors, []));

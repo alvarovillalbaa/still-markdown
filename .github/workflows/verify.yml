@@ -2,6 +2,7 @@ name: Verify Still
 on:
   push:
     branches: [main]
+    paths-ignore: ['docs/**', 'README.md']
   pull_request:
   workflow_dispatch:
 permissions:

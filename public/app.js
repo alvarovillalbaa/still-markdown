@@ -12,6 +12,8 @@ let activeId = null;
 let owner = 'guest';
 let sourceMode = false;
 let authMode = 'signup';
+let signupReady = null;
+let authDialogGeneration = 0;
 let initialized = false;
 let workspaceGeneration = 0;
 let transitioning = false;
@@ -303,11 +305,30 @@ function setAuthMode(mode) {
   $('auth-heading').textContent = ({ signup: 'Make yourself at home.', signin: 'Welcome back.', recover: 'A fresh way back in.', update: 'Choose a new password.' })[mode];
   $('auth-submit').textContent = ({ signup: 'Create your space →', signin: 'Come on in →', recover: 'Send reset email →', update: 'Save password →' })[mode];
   $('auth-error').textContent = ''; $('auth-error').classList.remove('success');
+  applyAuthReadiness();
+}
+function applyAuthReadiness() {
+  $('auth-submit').disabled = !cloud.configured || (authMode === 'signup' && signupReady !== true);
+  if (authMode === 'signup' && cloud.configured && signupReady === false) $('auth-error').textContent = 'Cloud signup is waiting for email configuration. You can keep writing on this device.';
 }
 function openAuth(mode = 'signup') {
   setAuthMode(mode); $('auth-dialog').showModal();
   if (!cloud.configured) { $('auth-error').textContent = 'Cloud accounts are not configured yet. Device pages and exports are available.'; $('auth-submit').disabled = true; }
-  else $('auth-submit').disabled = false;
+  else {
+    const attempt = ++authDialogGeneration;
+    fetch('/api/health', { cache: 'no-store' }).then((response) => response.json()).then((health) => {
+      if (attempt !== authDialogGeneration || !$('auth-dialog').open) return;
+      signupReady = health.ready === true && health.auth?.signupEnabled === true && health.auth?.emailEnabled === true
+        && (health.auth.emailConfirmationRequired === false || cloud.passwordRecoveryEnabled);
+      $('auth-policy').textContent = health.auth?.emailConfirmationRequired === false
+        ? 'No email confirmation is required. Password reset emails are not available yet, so keep your password safe. Device pages stay here until you choose to bring them to the cloud.'
+        : 'Email confirmation is currently required. Public signup delivery is waiting for configuration. Device pages and exports are ready.';
+      applyAuthReadiness();
+    }).catch(() => {
+      if (attempt !== authDialogGeneration || !$('auth-dialog').open) return;
+      signupReady = false; applyAuthReadiness();
+    });
+  }
 }
 function download(markdown, title) {
   const blob = new Blob([markdown], { type: 'text/markdown;charset=utf-8' });
@@ -358,6 +379,7 @@ async function refreshTokens() {
   } catch (error) { if (sameContext(ctx)) list.textContent = error.message; }
 }
 function openConnect() {
+  if (transitioning) return;
   updateAccountUI(); $('mcp-url').value = `${location.origin}/api/mcp`;
   $('token-secret').hidden = true; $('token-value').value = ''; $('token-message').textContent = '';
   $('connect-dialog').showModal(); if (cloud.user) refreshTokens();
