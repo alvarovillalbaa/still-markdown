@@ -1,13 +1,18 @@
 # Connect Still to an AI app
 
-Sign in to Still, open **Connections**, and create a connection token. Read access
-is the default. Choose read/write only when the app should create or edit pages.
+Cloud account activation is currently waiting for the Auth configuration deferred
+by the owner. The editor remains usable on the device. The instructions below
+apply once account signup and the live account/MCP checks are complete; the
+[release receipt](deployment-verification.json) records that boundary.
+
+Sign in to Still, open **Connect your tools**, and create a connection token.
+Read access is the default. Choose read/write only when the app should create or edit pages.
 Copy the token when it appears: Still stores its SHA-256 digest and cannot show
 the original token again. Tokens expire, and deleting a connection revokes it.
 
-The endpoint is `https://YOUR-STILL-DOMAIN/api/mcp`. Replace the domain in these
-examples with your deployment. Connection tokens are secrets; keep them out of
-repositories and shared screenshots.
+The published endpoint is `https://still-markdown.vercel.app/api/mcp`. For a
+self-hosted copy, replace that origin in these examples. Connection tokens are
+secrets; keep them out of repositories and shared screenshots.
 
 ## Cursor: native HTTP
 
@@ -17,7 +22,7 @@ Add a server to your local Cursor MCP configuration:
 {
   "mcpServers": {
     "still": {
-      "url": "https://YOUR-STILL-DOMAIN/api/mcp",
+      "url": "https://still-markdown.vercel.app/api/mcp",
       "headers": { "Authorization": "Bearer YOUR_STILL_TOKEN" }
     }
   }
@@ -31,7 +36,7 @@ to your Codex `config.toml`:
 
 ```toml
 [mcp_servers.still]
-url = "https://YOUR-STILL-DOMAIN/api/mcp"
+url = "https://still-markdown.vercel.app/api/mcp"
 bearer_token_env_var = "STILL_MCP_TOKEN"
 ```
 
@@ -51,7 +56,7 @@ installation is required. Update the absolute path in your local client config:
       "command": "node",
       "args": ["/absolute/path/to/still-markdown/scripts/mcp-stdio.mjs"],
       "env": {
-        "STILL_MCP_URL": "https://YOUR-STILL-DOMAIN/api/mcp",
+        "STILL_MCP_URL": "https://still-markdown.vercel.app/api/mcp",
         "STILL_MCP_TOKEN": "YOUR_STILL_TOKEN"
       }
     }
@@ -120,4 +125,4 @@ Protocol references: [MCP transports](https://modelcontextprotocol.io/specificat
 Client configuration references: [Cursor MCP configuration](https://cursor.com/docs/mcp)
 and [Claude Desktop local servers](https://modelcontextprotocol.io/docs/develop/connect-local-servers).
 The Codex bearer environment option is also available through
-`codex mcp add still --url https://YOUR-STILL-DOMAIN/api/mcp --bearer-token-env-var STILL_MCP_TOKEN`.
+`codex mcp add still --url https://still-markdown.vercel.app/api/mcp --bearer-token-env-var STILL_MCP_TOKEN`.

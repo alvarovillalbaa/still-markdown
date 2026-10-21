@@ -89,7 +89,13 @@ Production is `https://still-markdown.vercel.app`. The
 and proof boundaries. Desktop/mobile editing and imports/exports have hosted
 browser evidence. The database migration and RLS/grants are installed; live
 account isolation, signup, and authenticated external MCP still await Auth setup.
+The rollback-only `scripts/verify-database.sql` harness passed 26 assertion groups
+against the installed database. It switches to actual `authenticated` and `anon`
+roles, sets transaction-local user claims, and checks RLS, owner isolation,
+capability scope/expiry/revocation, and sequential version conflicts. All fixture
+rows are rolled back. This proves database enforcement under those roles; it
+does not validate signup, JWTs, Auth sessions, HTTP transport, or concurrent clients.
 The database advisor flags the intentionally callable SECURITY DEFINER RPCs:
 `save_document` derives its owner from `auth.uid()`, and `mcp_dispatch` validates
 the opaque capability before every operation. Private helpers are not exposed.
-These reviewed definitions still need the real two-account verification suite.
+The real two-account HTTP/browser verification suite remains pending Auth setup.

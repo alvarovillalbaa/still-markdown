@@ -1,9 +1,10 @@
 #!/usr/bin/env node
 import { once } from 'node:events';
-import { StringDecoder } from 'node:string_decoder';
 
 const MAX_LINE = 1024 * 1024;
 const MAX_RESPONSE = 8 * 1024 * 1024;
+const utf8 = new TextDecoder('utf-8', { fatal: true });
+const object = (value) => value !== null && typeof value === 'object' && !Array.isArray(value);
 let endpoint;
 try {
   endpoint = new URL(process.env.STILL_MCP_URL || '');
@@ -29,17 +30,18 @@ async function responseJson(response) {
     if (size > MAX_RESPONSE) throw new Error('Response is too large.');
     chunks.push(Buffer.from(chunk));
   }
-  return JSON.parse(Buffer.concat(chunks).toString('utf8'));
+  return JSON.parse(utf8.decode(Buffer.concat(chunks)));
 }
 
 async function relay(line) {
   let message;
   try { message = JSON.parse(line); }
   catch { return output(error(null, -32700, 'Parse error.')); }
-  const isObject = message !== null && typeof message === 'object' && !Array.isArray(message);
+  const isObject = object(message);
   const hasId = isObject && Object.hasOwn(message, 'id');
   const validId = !hasId || typeof message.id === 'string' || (typeof message.id === 'number' && Number.isSafeInteger(message.id));
-  if (!isObject || message.jsonrpc !== '2.0' || !validId || typeof message.method !== 'string') {
+  if (!isObject || message.jsonrpc !== '2.0' || !validId || typeof message.method !== 'string'
+    || !message.method || (message.params !== undefined && !object(message.params))) {
     return output(error(null, -32600, 'Invalid JSON-RPC request.'));
   }
   try {
@@ -65,12 +67,22 @@ async function relay(line) {
       if (!response.ok) process.stderr.write(`Still rejected a notification (HTTP ${response.status}).\n`);
       return;
     }
-    if (!result || result.jsonrpc !== '2.0' || result.id !== message.id || (!Object.hasOwn(result, 'result') && !Object.hasOwn(result, 'error'))) {
+    const hasResult = object(result) && Object.hasOwn(result, 'result');
+    const hasError = object(result) && Object.hasOwn(result, 'error');
+    const validError = !hasError || (object(result.error) && Number.isSafeInteger(result.error.code) && typeof result.error.message === 'string');
+    if (!object(result) || result.jsonrpc !== '2.0' || result.id !== message.id || hasResult === hasError || !validError) {
       await output(error(message.id, -32000, `Still returned an invalid response (HTTP ${response.status}).`));
       return;
     }
+    if (!response.ok && !hasError) {
+      await output(error(message.id, -32000, `Still rejected the request (HTTP ${response.status}).`));
+      return;
+    }
     if (message.method === 'initialize' && result.result?.protocolVersion) protocolVersion = result.result.protocolVersion;
-    await output(result);
+    if (hasError) {
+      const safeError = JSON.parse(JSON.stringify(result.error).replaceAll(process.env.STILL_MCP_TOKEN, '[redacted]'));
+      await output({ jsonrpc: '2.0', id: message.id, error: safeError });
+    } else await output(result);
   } catch {
     if (hasId) await output(error(message.id, -32000, 'Could not reach Still. Check the endpoint, token, and connection.'));
     else process.stderr.write('Could not deliver a notification to Still.\n');
@@ -78,31 +90,34 @@ async function relay(line) {
 }
 
 if (!process.exitCode) {
-  const decoder = new StringDecoder('utf8');
-  let pending = '';
+  let pending = Buffer.alloc(0);
   let discarding = false;
+  const consume = async (bytes) => {
+    if (bytes.at(-1) === 13) bytes = bytes.subarray(0, -1);
+    if (bytes.byteLength > MAX_LINE) return output(error(null, -32600, 'Request exceeds 1 MiB.'));
+    let line;
+    try { line = utf8.decode(bytes); }
+    catch { return output(error(null, -32700, 'Parse error.')); }
+    if (line.trim()) await relay(line);
+  };
   try {
     for await (const chunk of process.stdin) {
-      pending += decoder.write(chunk);
+      pending = Buffer.concat([pending, chunk]);
       let newline;
-      while ((newline = pending.indexOf('\n')) !== -1) {
-        const line = pending.slice(0, newline).replace(/\r$/, '');
-        pending = pending.slice(newline + 1);
+      while ((newline = pending.indexOf(10)) !== -1) {
+        const line = pending.subarray(0, newline);
+        pending = pending.subarray(newline + 1);
         if (discarding) { discarding = false; continue; }
-        if (Buffer.byteLength(line) > MAX_LINE) await output(error(null, -32600, 'Request exceeds 1 MiB.'));
-        else if (line.trim()) await relay(line);
+        await consume(line);
       }
-      if (Buffer.byteLength(pending) > MAX_LINE) {
+      // Permit one possible CR while waiting for a CRLF delimiter.
+      if (pending.byteLength > MAX_LINE + 1) {
         if (!discarding) await output(error(null, -32600, 'Request exceeds 1 MiB.'));
-        pending = '';
+        pending = Buffer.alloc(0);
         discarding = true;
       }
     }
-    pending += decoder.end();
-    if (!discarding && pending.trim()) {
-      if (Buffer.byteLength(pending) > MAX_LINE) await output(error(null, -32600, 'Request exceeds 1 MiB.'));
-      else await relay(pending.replace(/\r$/, ''));
-    }
+    if (!discarding && pending.byteLength) await consume(pending);
   } catch {
     process.stderr.write('Still bridge stopped because its input or output stream closed.\n');
     process.exitCode = 1;

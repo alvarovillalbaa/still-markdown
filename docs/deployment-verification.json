@@ -59,9 +59,22 @@
   "localChecks": {
     "syntaxJsonElementReferences": "passed",
     "focusedTests": {
-      "passed": 53,
+      "passed": 67,
       "failed": 0,
+      "skipped": 2,
+      "skipReason": "Local socket listeners fail with EPERM; real HTTP bridge cases remain enabled for hosted CI.",
       "command": "node --test scripts/*.test.mjs"
+    },
+    "stdioBridge": {
+      "passed": 14,
+      "boundary": "Actual Node subprocess and stdio pipes; mocked fetch over test-only IPC.",
+      "regressionsFixed": [
+        "Reject malformed methods and named params before forwarding",
+        "Reject invalid UTF-8 rather than silently replacing document bytes",
+        "Keep HTTP failure bodies from appearing as successful RPC results",
+        "Reject malformed or ambiguous JSON-RPC responses",
+        "Redact the bearer secret if an upstream RPC error echoes it"
+      ]
     },
     "gitDiffCheck": "passed",
     "runtimePackageDependencies": 0
@@ -126,6 +139,24 @@
       "anonymousTableSelect": false,
       "authenticatedDirectTableUpdate": false,
       "authenticatedCanReadTokenHash": false
+    },
+    "databaseEnforcement": {
+      "checkedAt": "2026-10-21 06:52:33 UTC",
+      "script": "scripts/verify-database.sql",
+      "scriptSha256": "480ba7e98e006dd659bc08af19cc1ef8a8b86cebd7d1b6d196ee721953a69ff6",
+      "execution": "Supabase execute_sql against the installed dedicated project database",
+      "passed": true,
+      "assertionGroupsPassed": 26,
+      "coverage": [
+        "Actual authenticated and anon role grants, RLS and private helper denial",
+        "Two simulated owners cannot read, edit, delete or revoke each other's data",
+        "Token digest secrecy and rejection of forged owners or scope escalation",
+        "Read/write capability scope, ownership, pagination, expiry and revocation",
+        "Sequential browser-style and MCP RPC version conflicts preserve newer content",
+        "All fixture users, documents and tokens rolled back; original role restored"
+      ],
+      "fixtureResidueAfterRollback": { "users": 0, "documents": 0, "tokens": 0 },
+      "proofBoundary": "Transaction-local claims are simulated. This does not prove signup, JWT validation, Auth sessions, HTTP/MCP transport, concurrent-client behavior or browser account sync."
     },
     "securityAdvisories": {
       "intentionalDefinerWarnings": 3,
