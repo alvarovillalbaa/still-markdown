@@ -1,5 +1,5 @@
 import assert from 'node:assert/strict';
-import { randomBytes, randomUUID } from 'node:crypto';
+import { randomUUID } from 'node:crypto';
 import { mkdir, readFile, writeFile } from 'node:fs/promises';
 import path from 'node:path';
 
@@ -14,10 +14,13 @@ const base = target.origin;
 const artifacts = path.resolve('artifacts');
 await mkdir(artifacts, { recursive: true });
 const run = `${Date.now()}-${randomUUID().slice(0, 8)}`;
-const email = `still-browser-${run}@example.com`;
-const password = `${randomBytes(24).toString('base64url')}Aa1!`;
-const secrets = [password];
-const evidence = { target: base, started_at: new Date().toISOString(), passed: [], user_id: null, cloud_page_id: null, success: false };
+// Supply an explicitly authorized, already-confirmed fixture account. Never
+// weaken production confirmation or create a random signup for browser checks.
+const email = process.env.STILL_CONFIRMED_EMAIL?.trim() || '';
+const password = process.env.STILL_CONFIRMED_PASSWORD || '';
+const secrets = [password, email];
+const evidence = { target: base, started_at: new Date().toISOString(), passed: [], user_id: null, cloud_page_id: null, success: false,
+  auth_method: 'confirmed_fixture_signin', signup_exercised: false, smtp_delivery_proven: false };
 const browserErrors = [];
 const contexts = [];
 let activePage;
@@ -46,7 +49,8 @@ async function newContext(options) {
     page.on('pageerror', (error) => browserErrors.push(scrub(error.message)));
     page.on('dialog', (dialog) => dialog.dismiss());
     page.on('response', async (response) => {
-      if (!response.url().includes('/auth/v1/signup') || response.request().method() !== 'POST') return;
+      const url = new URL(response.url());
+      if (url.pathname !== '/auth/v1/token' || url.searchParams.get('grant_type') !== 'password' || response.request().method() !== 'POST') return;
       try {
         const data = await response.json();
         const id = data.user?.id || data.id;
@@ -266,26 +270,31 @@ try {
   let cloudDocument;
   const cloudTitle = `Cloud browser proof ${run}`;
   const cloudText = `Private cloud browser page ${run}`;
-  await step('browser signup and private cloud save', async () => {
+  await step('confirmed fixture sign-in and private cloud save', async () => {
     activePage = desktop;
+    if (!email || !password) throw new Error('Set STILL_CONFIRMED_EMAIL and STILL_CONFIRMED_PASSWORD for an authorized, already-confirmed fixture account. This check does not create an account or prove SMTP delivery.');
     await desktop.locator('#account-button').click();
+    await desktop.locator('#signin-tab').click();
     await desktop.locator('#email').fill(email);
     await desktop.locator('#password').fill(password);
     await desktop.waitForFunction(() => !document.querySelector('#auth-submit').disabled
       || Boolean(document.querySelector('#auth-error').textContent.trim()), null, { timeout: 15_000 });
     if (await desktop.locator('#auth-submit').isDisabled()) {
       evidence.auth_message = scrub((await desktop.locator('#auth-error').textContent()).trim().slice(0, 500));
-      throw new Error(`Signup readiness is pending: ${evidence.auth_message}`);
+      throw new Error(`Confirmed-account sign-in is unavailable: ${evidence.auth_message}`);
     }
     await desktop.locator('#auth-submit').click();
     await desktop.waitForFunction(() => !document.querySelector('#auth-dialog').open
       || Boolean(document.querySelector('#auth-error').textContent.trim()), null, { timeout: 30_000 });
     if (await desktop.locator('#auth-dialog').evaluate((dialog) => dialog.open)) {
       evidence.auth_message = scrub((await desktop.locator('#auth-error').textContent()).replace(/[\u0000-\u001f]/g, ' ').trim().slice(0, 500));
-      throw new Error(`Signup did not produce an immediate signed-in session. Auth message: ${evidence.auth_message}`);
+      throw new Error(`Confirmed-account sign-in did not complete. Auth message: ${evidence.auth_message}`);
     }
     await textIs(desktop, '#account-name', email, 30_000);
     await desktop.waitForFunction(() => !document.querySelector('#new-page').disabled);
+    // The supplied fixture may already contain pages from another check. Only
+    // create and edit this run's page; never reuse its currently selected page.
+    await desktop.locator('#new-page').click();
     await desktop.locator('#page-title').fill(cloudTitle);
     await desktop.locator('#editor').click();
     await desktop.keyboard.type(cloudText);
@@ -375,7 +384,7 @@ try {
 
   await step('no uncaught browser errors', async () => assert.deepEqual(browserErrors, []));
   evidence.success = true;
-  process.stdout.write(`Browser verification passed. Synthetic account cleanup ID: ${evidence.user_id}\n`);
+  process.stdout.write('Browser verification passed using a confirmed fixture account. This does not prove signup, confirmation-email delivery, or password-reset delivery.\n');
 } catch (error) {
   evidence.failed_step = activeStep;
   const detail = scrub(error.stack || error.message || error);
@@ -387,7 +396,7 @@ try {
   evidence.finished_at = new Date().toISOString();
   evidence.browser_errors = browserErrors;
   await writeFile(path.join(artifacts, 'browser-evidence.json'), JSON.stringify(evidence, null, 2));
-  if (evidence.user_id) await writeFile(path.join(artifacts, 'synthetic-account-cleanup.json'), JSON.stringify({ user_id: evidence.user_id, page_id: evidence.cloud_page_id }, null, 2));
+  if (evidence.user_id) await writeFile(path.join(artifacts, 'fixture-data-cleanup.json'), JSON.stringify({ user_id: evidence.user_id, page_id: evidence.cloud_page_id, delete_user: false }, null, 2));
   for (const context of contexts) await context.close().catch(() => {});
   await browser?.close();
 }

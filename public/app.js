@@ -303,15 +303,19 @@ function setAuthMode(mode) {
   $('password').minLength = mode === 'signin' ? 1 : 8;
   $('recover-button').hidden = mode === 'update' || !cloud.passwordRecoveryEnabled;
   $('auth-heading').textContent = ({ signup: 'Make yourself at home.', signin: 'Welcome back.', recover: 'A fresh way back in.', update: 'Choose a new password.' })[mode];
+  $('auth-description').textContent = mode === 'recover' || mode === 'update'
+    ? 'Your Still and Kickoff account uses one password. Changing it changes it for both apps.'
+    : 'Use the same email and password for Still and Kickoff. Your Still pages stay private to your account.';
   $('auth-submit').textContent = ({ signup: 'Create your space →', signin: 'Come on in →', recover: 'Send reset email →', update: 'Save password →' })[mode];
   $('auth-error').textContent = ''; $('auth-error').classList.remove('success');
   applyAuthReadiness();
 }
 function applyAuthReadiness() {
   $('auth-submit').disabled = !cloud.configured || (authMode === 'signup' && signupReady !== true);
-  if (authMode === 'signup' && cloud.configured && signupReady === false) $('auth-error').textContent = 'Cloud signup is waiting for email configuration. You can keep writing on this device.';
+  if (authMode === 'signup' && cloud.configured && signupReady === false) $('auth-error').textContent = 'New accounts are waiting for email delivery. You can sign in with an existing Still or Kickoff account, or keep writing on this device.';
 }
 function openAuth(mode = 'signup') {
+  signupReady = null;
   setAuthMode(mode); $('auth-dialog').showModal();
   if (!cloud.configured) { $('auth-error').textContent = 'Cloud accounts are not configured yet. Device pages and exports are available.'; $('auth-submit').disabled = true; }
   else {
@@ -319,13 +323,14 @@ function openAuth(mode = 'signup') {
     fetch('/api/health', { cache: 'no-store' }).then((response) => response.json()).then((health) => {
       if (attempt !== authDialogGeneration || !$('auth-dialog').open) return;
       signupReady = health.ready === true && health.auth?.signupEnabled === true && health.auth?.emailEnabled === true
-        && (health.auth.emailConfirmationRequired === false || cloud.passwordRecoveryEnabled);
-      $('auth-policy').textContent = health.auth?.emailConfirmationRequired === false
-        ? 'No email confirmation is required. Password reset emails are not available yet, so keep your password safe. Device pages stay here until you choose to bring them to the cloud.'
-        : 'Email confirmation is currently required. Public signup delivery is waiting for configuration. Device pages and exports are ready.';
+        && health.auth.emailConfirmationRequired === true && cloud.emailDeliveryVerified;
+      $('auth-policy').textContent = signupReady
+        ? 'Confirm your email before your first sign-in. Device pages stay here until you choose to copy them to your account.'
+        : 'New accounts require email confirmation and are not available yet. Password reset emails are not available yet. Keep your password safe; device pages and exports remain available.';
       applyAuthReadiness();
     }).catch(() => {
       if (attempt !== authDialogGeneration || !$('auth-dialog').open) return;
+      $('auth-policy').textContent = 'Account creation is temporarily unavailable. You can still sign in with an existing account. Your device pages stay here.';
       signupReady = false; applyAuthReadiness();
     });
   }
@@ -465,11 +470,18 @@ $('auth-form').addEventListener('submit', async (event) => {
   try {
     if (authMode === 'recover') { await cloud.recover($('email').value.trim()); $('auth-error').classList.add('success'); $('auth-error').textContent = 'If an account exists, a reset link is on its way. Check your email.'; }
     else if (authMode === 'update') { await cloud.updatePassword($('password').value); $('auth-dialog').close(); showNotice('Your password has been updated.'); }
-    else if (authMode === 'signup') { const result = await cloud.signUp($('email').value.trim(), $('password').value); if (result.confirmationRequired) { $('auth-error').classList.add('success'); $('auth-error').textContent = 'Check your email to confirm your account, then sign in here.'; } else $('auth-dialog').close(); }
+    else if (authMode === 'signup') {
+      if (signupReady !== true) throw new Error('New accounts are not available yet. Sign in with an existing account, or keep writing on this device.');
+      const result = await cloud.signUp($('email').value.trim(), $('password').value);
+      if (result.confirmationRequired && !result.session) {
+        setAuthMode('signin'); $('auth-error').classList.add('success');
+        $('auth-error').textContent = 'Check your email to confirm your account, then sign in here. The same account works in Kickoff. Your device pages are still here.';
+      }
+    }
     else { await cloud.signIn($('email').value.trim(), $('password').value); $('auth-dialog').close(); }
     $('password').value = '';
   } catch (error) { $('auth-error').classList.remove('success'); $('auth-error').textContent = error.message; }
-  finally { submit.disabled = false; }
+  finally { applyAuthReadiness(); }
 });
 $('signout-button').onclick = async () => {
   persist(); $('signout-button').disabled = true;

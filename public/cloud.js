@@ -70,6 +70,7 @@ export class CloudClient extends EventTarget {
   constructor() {
     super();
     this.configured = false;
+    this.emailDeliveryVerified = false;
     this.passwordRecoveryEnabled = false;
     this.session = null;
     this.recovery = false;
@@ -123,6 +124,7 @@ export class CloudClient extends EventTarget {
     }
     this._config.url = project.origin;
     this.configured = true;
+    this.emailDeliveryVerified = this._config.emailDeliveryVerified === true;
     this.passwordRecoveryEnabled = this._config.passwordRecoveryEnabled === true;
     this._storagePrefix = `still.auth.${project.host}.`;
     this._activeKey = `${this._storagePrefix}active`;
@@ -355,21 +357,36 @@ export class CloudClient extends EventTarget {
 
   async signUp(email, password) {
     await this._requireConfigured();
+    if (!this.emailDeliveryVerified) {
+      throw new CloudError('New accounts are waiting for email delivery. You can sign in with an existing Still or Kickoff account, or keep writing on this device.', {
+        code: 'email_delivery_pending',
+      });
+    }
     if (!email?.trim() || typeof password !== 'string' || password.length < 8) {
       throw new CloudError('Enter an email address and a password with at least 8 characters.');
     }
     const attempt = ++this._authAttempt;
+    const health = await this._fetchJSON('/api/health');
+    this._assertAuthAttempt(attempt);
+    if (health.ready !== true || health.auth?.signupEnabled !== true || health.auth?.emailEnabled !== true
+      || health.auth?.emailConfirmationRequired !== true) {
+      throw new CloudError('New accounts are temporarily unavailable. Existing accounts and device pages are still available.', {
+        code: 'confirmation_policy_unavailable',
+      });
+    }
     const redirect = encodeURIComponent(`${location.origin}${location.pathname}`);
     const result = await this._request(`/auth/v1/signup?redirect_to=${redirect}`, {
       method: 'POST', body: { email: email.trim(), password },
     });
     this._assertAuthAttempt(attempt);
     if (result.access_token) {
-      this.recovery = false;
-      this._setAuthResult(result, 'SIGNED_IN');
+      // The shared account policy requires confirmation before the first sign-in.
+      // An unexpected immediate session must not activate a cloud workspace.
+      throw new CloudError('This signup did not follow the email confirmation policy. Please contact the app owner before signing in.', {
+        code: 'confirmation_policy_unavailable',
+      });
     }
-    return { session: result.access_token ? this.session : null,
-      user: result.user || result, confirmationRequired: !result.access_token };
+    return { session: null, user: result.user || result, confirmationRequired: true };
   }
 
   async signIn(email, password) {

@@ -7,9 +7,11 @@ runtime dependency. HTML, CSS, JavaScript, native Selection/Range, and Node APIs
 implement the app.
 
 Live editor: [still-markdown.vercel.app](https://still-markdown.vercel.app).
-Device editing is verified on desktop and mobile. Cloud signup activation is
-waiting for the Auth setting deferred by the owner; account-backed MCP remains
-unverified. See the [release receipt](docs/deployment-verification.json).
+Device editing has desktop and mobile browser evidence. New account signup and
+password recovery remain gated until email delivery is verified. Existing
+confirmed accounts can sign in; account-backed MCP still needs live verification.
+See the [historical release receipt](docs/deployment-verification.json) and
+[confirmed-email policy update](docs/results/2026-10-26-confirmed-email-policy.md).
 
 ## What you can do
 
@@ -53,19 +55,28 @@ node --env-file=.env scripts/dev.mjs
 Without it, browser requests must match the endpoint's origin.
 
 For another Supabase project, apply [supabase/schema.sql](supabase/schema.sql) to
-that dedicated project, configure its auth site URL and allowed redirect URLs,
+that project, configure its auth site URL and allowed redirect URLs,
 then set the public environment variables. Vercel serves `public/` and the two
 HTTP functions using [vercel.json](vercel.json); install and build commands are
 empty.
 
-The chosen launch policy is immediate signup without email confirmation, approved
-by the owner. That setting is still pending: the live Auth API currently reports
-confirmation required. The owner deferred this configuration step. The signup
-form checks live readiness and explains that cloud signup is waiting, while
-device pages stay usable. Applying the approved setting does not verify email
-ownership. Password-reset handlers remain hidden until custom SMTP, allowed
-redirects, and real delivery have been verified and
-`PASSWORD_RECOVERY_ENABLED=true` is set.
+The owner-approved policy is confirmed email, superseding the earlier deferred
+immediate-signup policy. Keep email confirmation enabled; do not enable
+autoconfirm. The signup form checks the live confirmation policy and requires
+`EMAIL_DELIVERY_VERIFIED=true`, set only after custom SMTP, allowed redirects and
+real confirmation delivery are verified. A successful signup remains signed out
+until the email is confirmed; guest pages stay on the device. Password-reset
+handlers also require verified delivery and `PASSWORD_RECOVERY_ENABLED=true`.
+Neither flag configures SMTP or proves delivery by itself.
+
+Still and Kickoff share one email/password identity in the existing Still
+Supabase project under the approved free-project consolidation. A password change
+affects both apps; app sessions and app data stay separate. Still signs out only
+its current session, leaving Kickoff signed in. Still owns its page/MCP SQL in
+[supabase/schema.sql](supabase/schema.sql); Kickoff owns its sports SQL in
+[its own repository](https://github.com/alvarovillalbaa/kickoff/blob/main/supabase/schema.sql).
+Provider migration and authenticated cross-app checks require their own receipts;
+these source changes do not establish that consolidation or delivery is complete.
 
 ## Persistence and connections
 
@@ -90,20 +101,27 @@ node --test scripts/*.test.mjs
 git diff --check
 ```
 
-Local checks pass 67 tests; two real HTTP bridge tests explicitly skip because
+The earlier release recorded 67 passing local tests; two real HTTP bridge tests skipped because
 this sandbox cannot listen on a loopback socket. The bridge checks exercise real
-subprocess stdio with a mocked HTTP boundary. Hosted CI passes all 69 tests,
-including both native HTTP/stdio bridge cases. Hosted browser checks verified
+subprocess stdio with a mocked HTTP boundary. Earlier hosted CI recorded all 69 tests passing,
+including both native HTTP/stdio bridge cases. Those hosted browser checks verified
 desktop/mobile writing, selection formatting, source preservation, CRLF imports/exports, reload
 persistence, search, focus mode, safe rich rendering, and modal focus.
 The [hosted run](https://github.com/alvarovillalbaa/still-markdown/actions/runs/39558387109)
-remains failed at the intentionally visible cloud-readiness gate. Live signup,
-account sessions and authenticated MCP are pending the deferred Auth setup.
+remains failed at the intentionally visible cloud-readiness gate. Its original
+immediate-signup expectation predates the confirmed-email policy. The browser
+verifier now uses explicitly supplied `STILL_CONFIRMED_EMAIL` and
+`STILL_CONFIRMED_PASSWORD` credentials for an authorized, already-confirmed fixture
+account; provide them only through a private environment when running approved
+checks. It creates a new synthetic page and records data cleanup IDs without
+requesting account deletion. It does not prove signup or SMTP delivery. Never
+disable confirmation to make a check pass. New confirmation delivery, account
+sessions and authenticated MCP need fresh proof.
 Separately, [the rollback-only database harness](scripts/verify-database.sql)
 passed 26 assertion groups against the installed database: owner isolation,
 role grants, token scopes/expiry/revocation, and sequential version conflicts.
 It simulates transaction-local claims, leaves no fixture rows, and does not prove
 signup, JWT validation, HTTP transport, or browser account sync. Run it only as a
-database administrator in the dedicated Still project; it makes no schema changes.
+database administrator in the Still project; it makes no schema changes.
 See the [release receipt](docs/deployment-verification.json) and
 [architecture and boundaries](docs/architecture.md).

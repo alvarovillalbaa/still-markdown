@@ -1,9 +1,12 @@
 # Connect Still to an AI app
 
-Cloud account activation is currently waiting for the Auth configuration deferred
-by the owner. The editor remains usable on the device. The instructions below
-apply once account signup and the live account/MCP checks are complete; the
-[release receipt](deployment-verification.json) records that boundary.
+Still and Kickoff share an email/password account under the approved consolidation
+in the existing Still Supabase project. Email confirmation stays enabled. New
+signup and password recovery remain gated until real email delivery is verified;
+existing confirmed accounts can sign in. The editor remains usable on the device.
+Authenticated MCP still needs fresh live proof; the
+[historical release receipt](deployment-verification.json) does not prove this
+new policy or the provider consolidation.
 
 Sign in to Still, open **Connect your tools**, and create a connection token.
 Read access is the default. Choose read/write only when the app should create or edit pages.
@@ -13,6 +16,12 @@ the original token again. Tokens expire, and deleting a connection revokes it.
 The published endpoint is `https://still-markdown.vercel.app/api/mcp`. For a
 self-hosted copy, replace that origin in these examples. Connection tokens are
 secrets; keep them out of repositories and shared screenshots.
+
+The shared login does not extend a Still connection token to Kickoff data.
+Still's [SQL contract](../supabase/schema.sql) owns token digests, expiry, scopes
+and page access; Kickoff's sports contract remains in its repository. Changing
+the account password affects both apps, while Still logout is local to its own
+session. Token revocation remains an explicit operation in **Connect your tools**.
 
 ## Cursor: native HTTP
 

@@ -30,7 +30,7 @@ function memoryStorage() {
     values,
   };
 }
-function environment(t, { initial, hash = '', configured = true, handler = () => { throw new Error('Unexpected HTTP request'); } } = {}) {
+function environment(t, { initial, hash = '', configured = true, emailDeliveryVerified = false, handler = () => { throw new Error('Unexpected HTTP request'); } } = {}) {
   const names = ['window', 'navigator', 'location', 'history', 'fetch'];
   const originals = new Map(names.map((name) => [name, Object.getOwnPropertyDescriptor(globalThis, name)]));
   const window = new EventTarget();
@@ -52,7 +52,7 @@ function environment(t, { initial, hash = '', configured = true, handler = () =>
       const call = { url: new URL(url, 'https://still.example.test'), options,
         body: options.body ? JSON.parse(options.body) : null };
       calls.push(call);
-      if (call.url.pathname === '/api/config') return json(configured ? CONFIG : { configured: false });
+      if (call.url.pathname === '/api/config') return json(configured ? { ...CONFIG, emailDeliveryVerified } : { configured: false });
       return route(call);
     },
   };
@@ -85,23 +85,52 @@ test('unconfigured cloud remains signed out and reports setup requirements witho
   assert.equal(env.calls.length, 1);
 });
 
-test('signup with email confirmation disabled establishes an account-scoped session immediately', async (t) => {
-  const signedIn = session();
-  const env = environment(t, { handler(call) {
+test('signup stays gated until confirmation email delivery is verified', async (t) => {
+  const env = environment(t); const client = env.client();
+  await assert.rejects(client.signUp('a@example.test', 'safe-password'), { code: 'email_delivery_pending' });
+  assert.equal(client.user, null);
+  assert.equal(env.calls.length, 1, 'Only public configuration should be requested.');
+});
+
+test('confirmation-pending signup leaves the guest signed out without session storage or a sign-in event', async (t) => {
+  const env = environment(t, { emailDeliveryVerified: true, handler(call) {
+    if (call.url.pathname === '/api/health') return json({ ready: true, auth: { signupEnabled: true, emailEnabled: true, emailConfirmationRequired: true } });
     assert.equal(call.url.pathname, '/auth/v1/signup');
     assert.deepEqual(call.body, { email: 'a@example.test', password: 'safe-password' });
     assert.equal(call.options.headers.apikey, CONFIG.publishableKey);
-    assert.equal(call.options.credentials, 'omit'); return json(signedIn);
+    assert.equal(call.options.credentials, 'omit'); return json({ id: A, email: 'a@example.test', email_confirmed_at: null });
   } });
   const client = env.client(); const events = [];
   client.addEventListener('auth', ({ detail }) => events.push(detail.event));
   const result = await client.signUp(' a@example.test ', 'safe-password');
-  assert.equal(result.confirmationRequired, false); assert.equal(result.session.user.id, A);
-  assert.equal(client.getSession().access_token, signedIn.access_token);
-  assert.equal(JSON.parse(env.window.localStorage.getItem(`${PREFIX}active`)), A);
-  assert.equal(JSON.parse(env.window.localStorage.getItem(`${PREFIX}${A}`)).user.id, A);
-  assert.ok(events.includes('SIGNED_IN'));
+  assert.equal(result.confirmationRequired, true); assert.equal(result.session, null); assert.equal(result.user.id, A);
+  assert.equal(client.getSession(), null);
+  assert.equal(env.window.localStorage.getItem(`${PREFIX}active`), null);
+  assert.equal(env.window.localStorage.getItem(`${PREFIX}${A}`), null);
+  assert.deepEqual(events, ['SIGNED_OUT']);
   assert.equal(client.passwordRecoveryEnabled, false);
+});
+
+test('signup rejects a disabled confirmation policy before creating an account', async (t) => {
+  const env = environment(t, { emailDeliveryVerified: true, handler(call) {
+    assert.equal(call.url.pathname, '/api/health');
+    return json({ ready: true, auth: { signupEnabled: true, emailEnabled: true, emailConfirmationRequired: false } });
+  } });
+  const client = env.client();
+  await assert.rejects(client.signUp('a@example.test', 'safe-password'), { code: 'confirmation_policy_unavailable' });
+  assert.equal(client.user, null);
+  assert.equal(env.calls.some(call => call.url.pathname === '/auth/v1/signup'), false);
+});
+
+test('an unexpected immediate signup response cannot activate the cloud workspace', async (t) => {
+  const env = environment(t, { emailDeliveryVerified: true, handler(call) {
+    if (call.url.pathname === '/api/health') return json({ ready: true, auth: { signupEnabled: true, emailEnabled: true, emailConfirmationRequired: true } });
+    assert.equal(call.url.pathname, '/auth/v1/signup'); return json(session());
+  } });
+  const client = env.client();
+  await assert.rejects(client.signUp('a@example.test', 'safe-password'), { code: 'confirmation_policy_unavailable' });
+  assert.equal(client.user, null);
+  assert.equal(env.window.localStorage.getItem(`${PREFIX}active`), null);
 });
 
 test('implicit recovery callbacks scrub URL credentials before verifying and recover after offline failure', async (t) => {
