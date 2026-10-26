@@ -33,3 +33,17 @@ Checks passed:
   delivery/policy gates alongside existing session, conflict, and local logout cases.
 - `node scripts/check.mjs`: JavaScript syntax, JSON and browser element references.
 - `git diff --check`: no whitespace errors.
+
+## Subsequent provider cutover readback
+
+After the separately recorded database and public browser acceptance, the execution
+owner paused the replaced Kickoff project. An independent `Supabase list_projects`
+read on 26 October confirmed old Kickoff `lucbdtdsofnybynjpdbp` as `INACTIVE`.
+Shared Still `wosqlzijmyiemueoittw` and isolated Welyto `faftywddybmgamvseibe`
+were both `ACTIVE_HEALTHY` in `eu-central-1`, and were the only active projects.
+
+The canonical migration, zero-data retirement preflight, deployed bundle,
+callbacks and pause evidence remain in
+[Kickoff's shared-backend receipt](https://github.com/alvarovillalbaa/kickoff/blob/main/docs/results/2026/10-26/shared-backend.md).
+This provider readback does not change the email-delivery and authenticated
+transport proof boundaries above.
