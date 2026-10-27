@@ -1,6 +1,6 @@
 # Preserve incomplete saved workspaces
 
-27 October 2026. Status: source repair and 44 focused frontend checks complete; source/hosted publication readback pending. Browser recovery acceptance remains unverified. The all-project goal is active.
+27 October 2026. Status: source repair published, 44 focused frontend checks passed, and exact-source hosted delivery verified. Browser recovery acceptance remains unverified. The all-project goal is active.
 
 Baseline: [2f0a83b0a0d5c96d35d2a5da66cddcbd397808ed](https://github.com/alvarovillalbaa/still-markdown/commit/2f0a83b0a0d5c96d35d2a5da66cddcbd397808ed). The [owning audit](source-audit.md) found that startup and owner transitions silently filtered saved rows and immediately persisted the subset over the original snapshot.
 
@@ -36,8 +36,10 @@ Coverage includes mixed/all-invalid snapshots, duplicate/empty IDs, missing fiel
 
 ## Publication and proof limits
 
-The existing main-push workflow also runs backend suites, live Auth/MCP and Chromium. Those operations are outside this repair's approved checks. Source publication will use GitHub's commit-specific `[skip actions]` annotation, which [suppresses push/PR workflow runs without changing the workflow](https://docs.github.com/en/actions/how-tos/manage-workflow-runs/skip-workflow-runs). No green CI claim is made and no workflow/check is removed or relaxed. Vercel source delivery will be verified separately.
+The existing main-push workflow also runs backend suites, live Auth/MCP and Chromium. Those operations are outside this repair's approved checks. Source publication used GitHub's commit-specific `[skip actions]` annotation, which [suppresses push/PR workflow runs without changing the workflow](https://docs.github.com/en/actions/how-tos/manage-workflow-runs/skip-workflow-runs). The source-SHA/event-filtered Actions API returned zero push runs after publication. No green CI claim is made and no workflow/check was removed or relaxed. Vercel source delivery was verified separately.
 
 No browser, native file download, actual IndexedDB recovery or real account transition ran for this repair. Earlier guest/editor browser evidence retains its original scope. Email delivery/signup, account sync and authenticated MCP still require their existing proof. This repair does not complete Still or the wider project goal.
 
-GitHub and exact-source hosted delivery readback pending.
+Source [3ba83a184c64e55bab8f482f1d8f8e781ca6261b](https://github.com/alvarovillalbaa/still-markdown/commit/3ba83a184c64e55bab8f482f1d8f8e781ca6261b) was pushed to personal-repository `main`. An immutable connected GitHub read of `public/app.js` returned blob `1d4ff2c49842867e0a0bec491c8f6168606a4cec`, equal to the local blob.
+
+Production deployment `dpl_4o8Q5nrriZrVW4ND8GmPum3XXqRT` reached `READY` at that exact SHA and owns the canonical Still alias. Connected public GETs returned 200 for [the editor](https://still-markdown.vercel.app/) and its app module. The HTML contains all recovery controls; the served app script exactly equals the immutable published source. This proves source/hosted delivery, not rendered browser recovery or real storage behavior. A documentation-only follow-up preserves all checked runtime/test bytes.
