@@ -87,6 +87,13 @@ data removes device-only pages. Signed-in saves use Supabase Auth and database
 row level security. Version checks reject conflicting browser or MCP edits, and
 the UI offers to preserve the local draft as a separate page.
 
+If a saved workspace contains unreadable or duplicate pages, device saving pauses
+without replacing its saved copy. Recovery controls export the available saved
+rows and current tab pages as JSON, or retry a complete read. New tab work remains
+unsaved until that read succeeds. The JSON file is a manual recovery archive;
+ordinary import still accepts Markdown/text files. See the [recovery receipt and
+limits](docs/results/2026/10-27/draft-recovery.md).
+
 MCP uses manually issued bearer tokens, with read access by default and optional
 read/write access. Token digests are stored, tokens expire, and connections can
 be revoked. OAuth and dynamic client registration are not implemented. Native

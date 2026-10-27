@@ -24,6 +24,7 @@ let persistenceRevision = 0;
 const memoryWorkspaces = new Map();
 const unsafeOwners = new Set();
 const unreadOwners = new Set();
+const recoverySnapshots = new Map();
 const saveQueues = new Map();
 const deletedIds = new Set();
 const context = () => ({ owner, generation: workspaceGeneration });
@@ -38,9 +39,41 @@ function write(key, value) {
 }
 const storageKey = (user = owner) => `still.pages.${user}`;
 function validDocuments(rows) {
-  if (!Array.isArray(rows)) return [];
-  return rows.filter((d) => d && typeof d.id === 'string' && typeof d.title === 'string'
-    && typeof d.markdown === 'string' && d.title.length <= 240 && encode.encode(d.markdown).length <= MAX_BYTES);
+  if (rows == null) return [];
+  if (!Array.isArray(rows)) throw new Error('The saved pages need recovery.');
+  const ids = new Set();
+  for (const doc of rows) {
+    if (!doc || typeof doc.id !== 'string' || !doc.id || ids.has(doc.id)
+      || typeof doc.title !== 'string' || typeof doc.markdown !== 'string'
+      || doc.title.length > 240 || encode.encode(doc.markdown).length > MAX_BYTES) {
+      throw new Error('The saved pages need recovery.');
+    }
+    ids.add(doc.id);
+  }
+  return rows;
+}
+async function loadValidatedWorkspace(user) {
+  const rows = await loadStoredWorkspace(user);
+  try { return validDocuments(rows); }
+  catch (error) { error.recoveryRows = rows; throw error; }
+}
+function markUnread(user, error) {
+  unreadOwners.add(user); unsafeOwners.add(user);
+  if (Object.hasOwn(error, 'recoveryRows')) recoverySnapshots.set(user, structuredClone(error.recoveryRows));
+  if (user === owner) { deviceUnsafe = true; updateRecoveryUI(); }
+}
+function updateRecoveryUI() {
+  $('recovery-panel').hidden = !unreadOwners.has(owner);
+  $('export-recovery').disabled = transitioning;
+  $('retry-workspace').disabled = transitioning;
+}
+function mergeRecoveredDrafts(cached, user) {
+  for (const draft of validDocuments(memoryWorkspaces.get(user))) {
+    const saved = cached.find((doc) => doc.id === draft.id);
+    if (saved && saved.title === draft.title && saved.markdown === draft.markdown) continue;
+    cached.unshift(saved ? { ...draft, id: crypto.randomUUID(), version: null, dirty: user !== 'guest', saving: false, error: null } : draft);
+  }
+  return cached;
 }
 async function persist() {
   const revision = ++persistenceRevision;
@@ -49,6 +82,7 @@ async function persist() {
   memoryWorkspaces.set(user, snapshot);
   if (unreadOwners.has(user)) {
     unsafeOwners.add(user); deviceUnsafe = true;
+    updateRecoveryUI();
     showNotice('Existing device drafts could not be read. New edits are kept in this tab; export them before reloading.', true, 'Export page', exportPage);
     return false;
   }
@@ -84,7 +118,7 @@ function showNotice(message, error = false, action, callback) {
 function hideNotice() { $('notice').hidden = true; }
 function showSaveState(doc = current()) {
   if (!doc) return;
-  const state = deviceUnsafe ? 'Device save failed' : devicePending ? 'Saving draft…' : doc.saving ? 'Saving…' : doc.error ? 'Draft saved on device' : owner === 'guest'
+  const state = unreadOwners.has(owner) ? 'Device saving paused' : deviceUnsafe ? 'Device save failed' : devicePending ? 'Saving draft…' : doc.saving ? 'Saving…' : doc.error ? 'Draft saved on device' : owner === 'guest'
     ? 'Saved on this device' : doc.dirty ? 'Waiting to sync…' : 'All changes saved';
   $('save-state').textContent = state;
   $('save-state').classList.toggle('error', Boolean(doc.error) || deviceUnsafe);
@@ -222,6 +256,7 @@ async function loadWorkspace() {
   const previousOwner = owner;
   const persistence = transitioning ? Promise.resolve(true) : persist();
   transitioning = true;
+  $('recovery-panel').hidden = true;
   const nextOwner = cloud.user?.id || 'guest';
   hideNotice(); $('notice-action').onclick = null;
   $('token-value').value = ''; $('token-secret').hidden = true;
@@ -242,16 +277,22 @@ async function loadWorkspace() {
   owner = nextOwner;
   let cached;
   try {
-    if (unreadOwners.has(owner)) {
-      cached = validDocuments(await loadStoredWorkspace(owner));
-      for (const draft of validDocuments(memoryWorkspaces.get(owner))) if ((draft.title || draft.markdown) && !cached.some((doc) => doc.id === draft.id)) cached.unshift(draft);
-      unreadOwners.delete(owner);
-    } else cached = unsafeOwners.has(owner) && memoryWorkspaces.has(owner) ? memoryWorkspaces.get(owner) : await loadStoredWorkspace(owner);
+    if (unreadOwners.has(nextOwner)) {
+      cached = await loadValidatedWorkspace(nextOwner);
+      if (generation !== workspaceGeneration) return;
+      cached = mergeRecoveredDrafts(cached, nextOwner);
+      unreadOwners.delete(nextOwner); recoverySnapshots.delete(nextOwner);
+    } else cached = unsafeOwners.has(nextOwner) && memoryWorkspaces.has(nextOwner) ? memoryWorkspaces.get(nextOwner) : await loadValidatedWorkspace(nextOwner);
   }
-  catch { cached = memoryWorkspaces.get(owner) || []; unreadOwners.add(owner); showNotice('Device drafts could not be loaded. Export any new work before closing.', true); deviceUnsafe = true; }
+  catch (error) {
+    if (generation !== workspaceGeneration) return;
+    cached = memoryWorkspaces.get(nextOwner) || []; markUnread(nextOwner, error);
+    showNotice('Device drafts could not be loaded. Export any new work before closing.', true);
+  }
   if (generation !== workspaceGeneration) return;
   documents = validDocuments(cached).map((doc) => ({ ...doc, saving: false }));
-  const enable = () => { transitioning = false; $('page-title').disabled = false; $('source').disabled = false; $('editor').contentEditable = 'true'; $('new-page').disabled = false; $('import-button').disabled = false; };
+  deviceUnsafe = unsafeOwners.has(nextOwner) || unreadOwners.has(nextOwner);
+  const enable = () => { transitioning = false; $('page-title').disabled = false; $('source').disabled = false; $('editor').contentEditable = 'true'; $('new-page').disabled = false; $('import-button').disabled = false; updateRecoveryUI(); };
   const cachedId = read(`still.active.${owner}`, null);
   updateAccountUI();
   if (owner === 'guest') {
@@ -335,13 +376,41 @@ function openAuth(mode = 'signup') {
     });
   }
 }
-function download(markdown, title) {
-  const blob = new Blob([markdown], { type: 'text/markdown;charset=utf-8' });
+function downloadFile(contents, type, filename) {
+  const blob = new Blob([contents], { type });
   const url = URL.createObjectURL(blob); const link = document.createElement('a'); link.href = url;
-  link.download = `${title.replace(/[<>:"/\\|?*\u0000-\u001f]/g, '-').slice(0, 180) || 'Untitled'}.md`;
+  link.download = filename;
   document.body.append(link); link.click(); link.remove(); setTimeout(() => URL.revokeObjectURL(url), 2000);
 }
+function download(markdown, title) {
+  downloadFile(markdown, 'text/markdown;charset=utf-8', `${title.replace(/[<>:"/\\|?*\u0000-\u001f]/g, '-').slice(0, 180) || 'Untitled'}.md`);
+}
 function exportPage() { const doc = current(); if (doc) download(doc.markdown, titleOf(doc)); }
+function exportRecovery() {
+  if (transitioning || !unreadOwners.has(owner)) return;
+  try {
+    const contents = JSON.stringify({ format: 'still-recovery', version: 1,
+      savedPages: recoverySnapshots.get(owner) ?? null, tabPages: documents }, function (key, value) {
+      // Refuse a lossy archive of unexpected IndexedDB values.
+      const original = this[key];
+      if (original === undefined || typeof original === 'bigint' || typeof original === 'function'
+        || typeof original === 'symbol' || (typeof original === 'number' && (!Number.isFinite(original) || Object.is(original, -0)))) {
+        throw new Error('The recovery copy is not JSON data.');
+      }
+      if (original && typeof original === 'object') {
+        if (Array.isArray(original)) {
+          for (let index = 0; index < original.length; index++) if (!Object.hasOwn(original, index)) throw new Error('The recovery copy has missing entries.');
+          if (Object.keys(original).length !== original.length) throw new Error('The recovery copy has extra array fields.');
+        } else if (Object.prototype.toString.call(original) !== '[object Object]') throw new Error('The recovery copy is not JSON data.');
+      }
+      return value;
+    }, 2);
+    downloadFile(contents, 'application/json;charset=utf-8', 'still-recovery.json');
+    showNotice(recoverySnapshots.has(owner)
+      ? 'Recovery copy prepared. Saved pages are unchanged; device saving remains paused.'
+      : 'Only this tab’s pages were copied; saved pages could not be read. Device saving remains paused.');
+  } catch { showNotice('Could not prepare a complete recovery file. Saved pages are unchanged. Export open pages individually, or try loading again.', true); }
+}
 async function importFiles(files) {
   if (transitioning) { showNotice('Pages are still loading. Try the import again when they are ready.'); return; }
   const ctx = context();
@@ -444,6 +513,8 @@ $('confirm-delete').onclick = async () => {
   finally { $('confirm-delete').disabled = false; }
 };
 $('notice-close').onclick = hideNotice;
+$('export-recovery').onclick = exportRecovery;
+$('retry-workspace').onclick = loadWorkspace;
 $('import-button').onclick = () => $('file-input').click();
 $('file-input').addEventListener('change', (event) => importFiles(event.target.files));
 let dragDepth = 0;
@@ -504,9 +575,22 @@ $('token-form').addEventListener('submit', async (event) => {
 });
 $('guest-upload').onclick = async () => {
   const ctx = context();
+  if (unreadOwners.has('guest')) {
+    showNotice('Device pages need recovery before copying. Sign out to export a recovery copy and try loading them again.', true);
+    return;
+  }
   let guest;
-  try { guest = validDocuments(unsafeOwners.has('guest') && memoryWorkspaces.has('guest') ? memoryWorkspaces.get('guest') : await loadStoredWorkspace('guest')).filter((d) => d.markdown || d.title); }
-  catch { showNotice('Could not read device pages. Please try again.', true); return; }
+  try {
+    guest = validDocuments(unsafeOwners.has('guest') && memoryWorkspaces.has('guest')
+      ? memoryWorkspaces.get('guest') : await loadValidatedWorkspace('guest')).filter((d) => d.markdown || d.title);
+  }
+  catch (error) {
+    if (sameContext(ctx)) {
+      markUnread('guest', error);
+      showNotice('Device pages could not be copied. Sign out to open device pages and export a recovery copy; originals are unchanged.', true);
+    }
+    return;
+  }
   if (!sameContext(ctx)) return;
   if (!guest.length) return; $('guest-upload').disabled = true;
   try {
@@ -546,8 +630,8 @@ cloud.addEventListener('auth', ({ detail }) => {
 });
 
 // Device pages are usable immediately, including while the network is unavailable.
-try { documents = validDocuments(await loadStoredWorkspace('guest')); }
-catch { documents = []; unreadOwners.add('guest'); deviceUnsafe = true; showNotice('Device drafts could not be loaded. Export your work before closing.', true); }
+try { documents = await loadValidatedWorkspace('guest'); }
+catch (error) { documents = []; markUnread('guest', error); showNotice('Device drafts could not be loaded. Export your work before closing.', true); }
 if (!documents.length) documents = [blank()];
 selectPage(read('still.active.guest', documents[0].id)); if (!current()) selectPage(documents[0].id); persist();
 try { await cloud.init(); }

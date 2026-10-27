@@ -48,6 +48,16 @@ when loaded. A migration marker prevents an old localStorage copy from replacing
 a newer IndexedDB workspace during database unavailability. Storage errors keep
 the open work in memory and present an export action.
 
+The app validates each complete stored page list before hydration, including
+unique nonempty IDs, required text fields, title length and Markdown byte bounds.
+It does not filter and resave a partial list. An incomplete read gates all device
+writes for that owner; raw rows are held separately from editable tab drafts.
+Persistent recovery controls export JSON-compatible saved rows and tab pages
+without lifting the gate. Lossy or unserializable archive values fail visibly.
+A complete retry merges tab drafts, preserves changed same-ID drafts under new
+IDs, then resumes normal persistence. Owner/generation checks fence stale reads.
+See [focused recovery evidence](results/2026/10-27/draft-recovery.md).
+
 The app separates device persistence from cloud save queues. Saves carry the
 document's expected version; the database creates with a null version or updates
 only the matching owner, ID, and version. An update increments the version. Stale
