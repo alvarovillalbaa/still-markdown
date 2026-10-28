@@ -1,8 +1,8 @@
 # Keep import results in their workspace
 
-28 October 2026. Status: source repair and 62 focused frontend checks passed;
-publication readback is pending. Browser acceptance remains unverified. The
-all-project goal is active.
+28 October 2026. Status: source repair published, 62 focused frontend checks
+passed, and exact-source hosted delivery verified. Browser acceptance remains
+unverified. The all-project goal is active.
 
 Baseline: [6e9078ff8aea4e0962e788e8dedbfdd0e6608c6d](https://github.com/alvarovillalbaa/still-markdown/commit/6e9078ff8aea4e0962e788e8dedbfdd0e6608c6d).
 An import checked workspace ownership after a successful file read, but a late
@@ -61,6 +61,9 @@ includes owner changes, same-owner retry, returning to an earlier owner, the
 post-page-creation microtask, overlapping batches, live lists, empty selections,
 encoding/limits, and both known storage-warning/export states. Independent
 read-only source review found no remaining scoped blocker.
+All 19 local links across the three changed Markdown files resolve, including
+the previous receipt's publication anchor. Exact five-file scope and protected
+paths were verified against baseline. Text/whitespace and staged checks passed.
 
 | Frozen artifact | SHA-256 |
 | --- | --- |
@@ -77,8 +80,22 @@ recovery receipt](../10-27/draft-recovery.md#publication-and-proof-limits).
 No workflow/check is removed or relaxed, and no green hosted CI claim is made.
 Git-linked Vercel source delivery is checked separately.
 
+Source [26f587aa09bd5ce0f0e8f16fa26a3dd05802175f](https://github.com/alvarovillalbaa/still-markdown/commit/26f587aa09bd5ce0f0e8f16fa26a3dd05802175f)
+was pushed to personal-repository `main`. Immutable connected GitHub reads of
+all five changed files returned blobs equal to their local Git blobs; app blob
+is `4494fdeb6cab2a55824840b592e787fcb80066c6`. The source-SHA/event-filtered
+Actions API returned zero push runs after publication.
+
+Production deployment `dpl_EK1cUhxctq8d3f3rvEakNMG7DCDL` reached `READY` at
+that exact source SHA and owns the canonical Still alias. Connected GETs returned
+200 for [the editor](https://still-markdown.vercel.app/) and its `/app.js` module.
+The HTML references that module, whose complete text equals the immutable
+published app source and whose checked SHA-256 is recorded above. A
+documentation-only follow-up preserves the checked runtime/test bytes.
+
 These are authored in-memory frontend checks and static validation. No browser,
 native chooser/download, actual IndexedDB transaction, account transition,
 backend, Auth/MCP or provider check ran. Hosted source bytes do not establish
 those behaviors. Existing email/signup, account sync and authenticated MCP proof
 remain open; this repair does not complete Still or the wider project goal.
+The owned immutable-baseline fixture was removed after execution.
