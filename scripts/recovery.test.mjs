@@ -24,9 +24,9 @@ const deferred = () => {
 async function environment(initial = [page('one')], { initialReadError = false } = {}) {
   const records = new Map([['guest', copy(initial)]]);
   const writes = [], reads = [], downloads = [], cloudWrites = [];
-  const scriptedReads = new Map(), remote = new Map(), urls = new Map();
-  const nodes = new Map(), timers = new Map(), windowListeners = new Map();
-  let sequence = 0, timerId = 0, app;
+  const scriptedReads = new Map(), remote = new Map(), urls = new Map(), failingWrites = new Set();
+  const nodes = new Map(), timers = new Map(), windowListeners = new Map(), documentListeners = new Map();
+  let sequence = 0, timerId = 0, app, afterSave;
   function node(tag = 'div', id = '') {
     const attributes = new Map(), classes = new Set(), listeners = new Map();
     return {
@@ -67,6 +67,13 @@ async function environment(initial = [page('one')], { initialReadError = false }
     const element = node(tag, id); element.hidden = /\shidden(?:\s|=|>)/.test(markup);
     element.disabled = /\sdisabled(?:\s|=|>)/.test(markup); nodes.set(id, element);
   }
+  const fileInput = nodes.get('file-input');
+  let fileValue = '';
+  fileInput.files = [];
+  Object.defineProperty(fileInput, 'value', {
+    get() { return fileValue; },
+    set(value) { fileValue = String(value); if (fileValue === '') fileInput.files.length = 0; },
+  });
   // Baseline source uses the current harmless platform boundary. New controls
   // are present but have no callback until the actual new app registers one.
   for (const id of ['recovery-panel', 'export-recovery', 'retry-workspace']) {
@@ -75,7 +82,10 @@ async function environment(initial = [page('one')], { initialReadError = false }
   const document = {
     body: node('body'), title: '', activeElement: null,
     getElementById(id) { assert.ok(nodes.has(id), 'Unmodeled app element: ' + id); return nodes.get(id); },
-    createElement: (tag) => node(tag), addEventListener() {},
+    createElement: (tag) => node(tag),
+    addEventListener(name, callback) {
+      const values = documentListeners.get(name) || []; values.push(callback); documentListeners.set(name, values);
+    },
     querySelectorAll() { return []; }, querySelector() { return null; },
   };
   const local = new Map();
@@ -118,12 +128,15 @@ async function environment(initial = [page('one')], { initialReadError = false }
       return copy(records.get(user) ?? null);
     },
     async saveWorkspace(user, documents) {
-      writes.push({ owner: user, documents: copy(documents) }); records.set(user, copy(documents));
+      writes.push({ owner: user, documents: copy(documents) });
+      if (failingWrites.has(user)) throw new Error('Authored device write failure');
+      records.set(user, copy(documents));
+      const callback = afterSave; afterSave = null; callback?.();
     },
   });
   const stripped = source.replace(/^import [^\n]+;\s*$/gm, '');
   const adapter = `
-    return { cloud, loadWorkspace, persist, newPage, pageChanged, current, selectPage, showNotice,
+    return { cloud, loadWorkspace, persist, newPage, pageChanged, current, selectPage, showNotice, importFiles,
       state: () => ({ owner, documents: structuredClone(documents), activeId,
         unread: [...unreadOwners], unsafe: [...unsafeOwners], deviceUnsafe, transitioning,
         recovery: typeof recoverySnapshots === 'undefined' ? null : structuredClone([...recoverySnapshots]) }) };
@@ -140,6 +153,15 @@ async function environment(initial = [page('one')], { initialReadError = false }
     async switch(user) { app.cloud.user = user ? { id: user, email: user + '@example.invalid' } : null; await app.loadWorkspace(); await flush(); },
     async click(id) { await nodes.get(id).dispatch('click'); await flush(); },
     async edit(markdown, title = 'Authored tab edit') { nodes.get('page-title').value = title; app.pageChanged(markdown); await flush(); },
+    selectFiles(files, value = 'authored-selection.md') { fileInput.files = [...files]; fileInput.value = value; },
+    pick(files, value = 'authored-selection.md') { this.selectFiles(files, value); return fileInput.dispatch('change'); },
+    async drop(files) {
+      const event = { dataTransfer: { files, types: ['Files'] }, prevented: false, preventDefault() { this.prevented = true; } };
+      for (const callback of documentListeners.get('drop') || []) callback(event);
+      await flush(); return event;
+    },
+    onNextSave(callback) { afterSave = callback; },
+    failSaves(user = 'guest') { failingWrites.add(user); },
     async waitForRead(user, count = 1) {
       for (let i = 0; i < 100; i++) { if (reads.filter((item) => item === user).length >= count) return; await Promise.resolve(); }
       throw new Error('Expected read did not start: ' + user);
@@ -370,4 +392,184 @@ test('ordinary Markdown export retains exact source and its existing file type',
   const h = await environment([original]); await h.click('export-button');
   assert.equal(h.downloads.length, 1); assert.equal(h.downloads[0].filename, 'Authored exported page.md');
   assert.match(h.downloads[0].blob.type, /^text\/markdown/); assert.equal(await h.downloads[0].blob.text(), original.markdown);
+});
+
+function importedFile(name, text = '# Authored imported source\n', { gate, bytes, size } = {}) {
+  const encoded = bytes ?? new TextEncoder().encode(text), calls = { reads: 0 };
+  return {
+    name, size: size ?? encoded.byteLength, calls,
+    async arrayBuffer() { calls.reads++; if (gate) await gate.promise; return encoded.slice().buffer; },
+  };
+}
+function feedback(h) {
+  return {
+    text: h.nodes.get('notice-text').textContent, hidden: h.nodes.get('notice').hidden,
+    error: h.nodes.get('notice').classList.contains('error'),
+    action: h.nodes.get('notice-action').textContent, actionHidden: h.nodes.get('notice-action').hidden,
+  };
+}
+
+test('imports preserve exact UTF-8 source through the actual picker and immediate live-list clearing', async () => {
+  const h = await environment(), markdown = '# Authored\r\n\r\nEspañol 漢字 🟠\r\n', file = importedFile('Exact source.MARKDOWN', markdown);
+  const pending = h.pick([file]);
+  assert.equal(h.nodes.get('file-input').value, '', 'The picker must clear before its callback yields.');
+  assert.equal(h.nodes.get('file-input').files.length, 0, 'The app must snapshot files before the live chooser clears.');
+  await pending; await h.flush();
+  const imported = h.state.documents.find(doc => doc.title === 'Exact source');
+  assert.ok(imported); assert.equal(imported.markdown, markdown); assert.equal(file.calls.reads, 1);
+  assert.ok(h.records.get('guest').some(doc => doc.id === imported.id && doc.markdown === markdown));
+  assert.match(feedback(h).text, /^1 page has a new home\./);
+});
+
+test('imports keep a newer picker selection after an older read finishes', async () => {
+  const h = await environment(), gate = deferred(), old = importedFile('Older.md', 'Older source', { gate });
+  const pending = h.pick([old]);
+  const next = importedFile('Next.md'); h.selectFiles([next], 'next-native-selection.md');
+  gate.resolve(); await pending; await h.flush();
+  assert.equal(h.nodes.get('file-input').value, 'next-native-selection.md');
+  assert.deepEqual(h.nodes.get('file-input').files, [next]);
+  assert.ok(h.state.documents.some(doc => doc.title === 'Older')); assert.equal(next.calls.reads, 0);
+});
+
+test('imports dropped files without resetting an unrelated native picker selection', async () => {
+  const h = await environment(), selected = importedFile('Unsubmitted picker.md'); h.selectFiles([selected], 'native-picker-selection.md');
+  const event = await h.drop([importedFile('Dropped.txt', 'Drop source\r\n')]);
+  assert.equal(event.prevented, true); assert.equal(h.nodes.get('file-input').value, 'native-picker-selection.md');
+  assert.deepEqual(h.nodes.get('file-input').files, [selected]); assert.equal(selected.calls.reads, 0);
+  assert.ok(h.state.documents.some(doc => doc.title === 'Dropped' && doc.markdown === 'Drop source\r\n'));
+});
+
+test('imports reject current unsupported and oversized files before reading their bytes', async () => {
+  const h = await environment(), unsupported = importedFile('Not Markdown.pdf'), oversized = importedFile('Too large.md', '', { size: 1_048_577 });
+  const before = h.state.documents; await h.app.importFiles([unsupported, oversized]); await h.flush();
+  assert.deepEqual(h.state.documents, before); assert.equal(unsupported.calls.reads, 0); assert.equal(oversized.calls.reads, 0);
+  assert.match(feedback(h).text, /Not Markdown\.pdf: use \.md/); assert.match(feedback(h).text, /Too large\.md: larger than 1 MiB/);
+  assert.equal(feedback(h).error, true);
+});
+
+test('imports reject invalid UTF-8 and NUL text without creating pages', async () => {
+  const h = await environment(), before = h.state.documents;
+  await h.app.importFiles([importedFile('Invalid encoding.md', '', { bytes: new Uint8Array([0xff, 0x61]) }), importedFile('Nul text.txt', 'before\0after')]);
+  await h.flush(); assert.deepEqual(h.state.documents, before); assert.equal(feedback(h).error, true);
+  assert.match(feedback(h).text, /Invalid encoding\.md/); assert.match(feedback(h).text, /Nul text\.txt: not a text file/);
+});
+
+test('imports retain the exact one-MiB boundary and existing title limit', async () => {
+  const h = await environment(), text = 'x'.repeat(1_048_576), title = 'a'.repeat(250);
+  await h.app.importFiles([importedFile(title + '.md', text)]); await h.flush();
+  const imported = h.state.documents.find(doc => doc.title === 'a'.repeat(240));
+  assert.ok(imported); assert.equal(imported.markdown, text); assert.match(feedback(h).text, /^1 page has a new home\./);
+});
+
+test('imports preserve the original fifty-file cap and warning when the supplied live list changes', async () => {
+  const h = await environment(), gate = deferred();
+  const originals = Array.from({ length: 51 }, (_, index) => importedFile('Batch ' + index + '.md', 'Source ' + index, index === 0 ? { gate } : {}));
+  const live = [...originals], pending = h.app.importFiles(live); live.length = 0; gate.resolve();
+  await pending; await h.flush();
+  assert.equal(h.state.documents.filter(doc => doc.title.startsWith('Batch ')).length, 50);
+  assert.equal(originals.slice(0, 50).every(file => file.calls.reads === 1), true); assert.equal(originals[50].calls.reads, 0);
+  assert.match(feedback(h).text, /Import up to 50 files at a time/);
+});
+
+test('imports ignore a failed read from the previous account without changing the current notice or chooser', async () => {
+  const h = await environment(), gate = deferred(), pending = h.app.importFiles([importedFile('Guest pending.md', '', { gate })]);
+  h.remote('account-a', [page('account-original')]); await h.switch('account-a');
+  h.app.showNotice('Current account notice', true, 'Current action', () => {}); h.selectFiles([importedFile('Current selection.md')], 'current-account-selection.md');
+  const before = h.state, notice = feedback(h), writes = h.writes.length, cloudWrites = h.cloudWrites.length;
+  gate.reject(new Error('Obsolete guest file read failed')); await pending; await h.flush();
+  assert.deepEqual(h.state, before); assert.deepEqual(feedback(h), notice);
+  assert.equal(h.nodes.get('file-input').value, 'current-account-selection.md');
+  assert.equal(h.writes.length, writes); assert.equal(h.cloudWrites.length, cloudWrites);
+});
+
+test('imports retain the existing successful-read fence across an account transition', async () => {
+  const h = await environment(), gate = deferred(), pending = h.app.importFiles([importedFile('Guest late success.md', 'Guest-only source', { gate })]);
+  h.remote('account-a', [page('account-original')]); await h.switch('account-a');
+  h.app.showNotice('Keep this account notice'); h.selectFiles([importedFile('Keep selected.md')], 'keep-selected.md');
+  const before = h.state, notice = feedback(h); gate.resolve(); await pending; await h.flush();
+  assert.deepEqual(h.state, before); assert.deepEqual(feedback(h), notice); assert.equal(h.nodes.get('file-input').value, 'keep-selected.md');
+});
+
+test('imports ignore a stale read failure after a same-owner workspace retry', async () => {
+  const h = await environment(), gate = deferred(), pending = h.app.importFiles([importedFile('Before retry.md', '', { gate })]);
+  await h.app.loadWorkspace(); await h.flush(); h.app.showNotice('Notice after guest retry');
+  h.selectFiles([importedFile('After retry.md')], 'after-retry-selection.md'); const before = h.state, notice = feedback(h);
+  gate.reject(new Error('Obsolete retry read failed')); await pending; await h.flush();
+  assert.equal(h.state.owner, 'guest'); assert.deepEqual(h.state, before); assert.deepEqual(feedback(h), notice);
+  assert.equal(h.nodes.get('file-input').value, 'after-retry-selection.md');
+});
+
+test('imports reject stale feedback after guest-account-guest ABA transitions', async () => {
+  const h = await environment(), gate = deferred(), pending = h.app.importFiles([importedFile('Old guest.md', '', { gate })]);
+  h.remote('account-a', [page('account-original')]); await h.switch('account-a'); await h.switch(null);
+  h.app.showNotice('New guest generation'); h.selectFiles([importedFile('New guest.md')], 'new-guest-selection.md');
+  const before = h.state, notice = feedback(h); gate.reject(new Error('First guest generation failed')); await pending; await h.flush();
+  assert.deepEqual(h.state, before); assert.deepEqual(feedback(h), notice); assert.equal(h.nodes.get('file-input').value, 'new-guest-selection.md');
+});
+
+test('imports keep valid older batches while only the latest batch owns terminal feedback', async () => {
+  const h = await environment(), gate = deferred();
+  const older = h.app.importFiles([importedFile('Older first.md', 'Older first source', { gate }), importedFile('Older second.md', 'Older second source')]);
+  await h.app.importFiles([importedFile('Newer.md', 'Newer source')]); await h.flush(); const notice = feedback(h);
+  assert.match(notice.text, /^1 page has a new home\./); gate.resolve(); await older; await h.flush();
+  for (const title of ['Older first', 'Older second', 'Newer']) assert.ok(h.state.documents.some(doc => doc.title === title));
+  assert.deepEqual(feedback(h), notice, 'Older valid imports remain useful without replacing the latest summary.');
+});
+
+test('imports suppress an older failure after a newer successful batch', async () => {
+  const h = await environment(), gate = deferred(), older = h.app.importFiles([importedFile('Obsolete failure.md', '', { gate })]);
+  await h.app.importFiles([importedFile('Newer success.md', 'Newer source')]); await h.flush(); const notice = feedback(h);
+  gate.reject(new Error('Obsolete import failed')); await older; await h.flush();
+  assert.deepEqual(feedback(h), notice); assert.ok(h.state.documents.some(doc => doc.title === 'Newer success'));
+});
+
+test('imports suppress older feedback while the newest batch is still reading', async () => {
+  const h = await environment(), oldGate = deferred(), newGate = deferred();
+  const older = h.app.importFiles([importedFile('Old waiting.md', '', { gate: oldGate })]);
+  const latest = h.app.importFiles([importedFile('New waiting.md', 'Newest source', { gate: newGate })]);
+  h.app.showNotice('Newest file is still being read'); const notice = feedback(h);
+  oldGate.reject(new Error('Old file failed')); await older; await h.flush(); assert.deepEqual(feedback(h), notice);
+  newGate.resolve(); await latest; await h.flush(); assert.ok(h.state.documents.some(doc => doc.title === 'New waiting'));
+});
+
+test('imports do not supersede a pending batch when an empty selection arrives', async () => {
+  const h = await environment(), gate = deferred(), pending = h.app.importFiles([importedFile('Kept pending.md', 'Kept source', { gate })]);
+  await h.pick([]); gate.resolve(); await pending; await h.flush();
+  assert.ok(h.state.documents.some(doc => doc.title === 'Kept pending')); assert.match(feedback(h).text, /^1 page has a new home\./);
+});
+
+test('imports stop advancing the old batch when context changes across the awaited page creation', async () => {
+  const h = await environment(), next = importedFile('Must not read next.md'); let transition;
+  h.onNextSave(() => queueMicrotask(() => { transition = h.switch(null); }));
+  await h.app.importFiles([importedFile('Created before retry.md', 'Source retained before retry'), next]);
+  assert.ok(transition, 'The controlled persistence boundary must schedule the actual workspace transition.');
+  await transition; await h.flush();
+  assert.equal(next.calls.reads, 0); assert.ok(h.state.documents.some(doc => doc.title === 'Created before retry'));
+  assert.doesNotMatch(feedback(h).text, /pages? (?:has|have) a new home/);
+});
+
+test('imports retain a known device-save failure and export action alongside the current partial result', async () => {
+  const original = [page('saved-original')], h = await environment(original), gate = deferred(); h.failSaves();
+  const pending = h.app.importFiles([importedFile('Unsaved accepted.md', 'Exact unsaved imported source\r\n'), importedFile('Failed remaining.md', '', { gate })]);
+  await h.flush(); assert.equal(h.state.deviceUnsafe, true); assert.equal(h.nodes.get('notice-action').textContent, 'Export page');
+  gate.reject(new Error('Authored remaining read failure')); await pending; await h.flush();
+  assert.match(feedback(h).text, /1 imported/); assert.match(feedback(h).text, /Failed remaining\.md: Authored remaining read failure/);
+  assert.match(feedback(h).text, /storage.*(?:full|unavailable)|could not.*sav|not.*sav/i);
+  assert.equal(feedback(h).action, 'Export page'); assert.equal(feedback(h).actionHidden, false); assert.equal(feedback(h).error, true);
+  assert.deepEqual(h.records.get('guest'), original); assert.equal(h.unloadBlocked(), true);
+  await h.click('notice-action'); assert.equal(h.downloads.length, 1);
+  assert.equal(await h.downloads[0].blob.text(), 'Exact unsaved imported source\r\n');
+});
+
+test('imports retain the unread-workspace warning and export action alongside count and file errors', async () => {
+  const original = [invalidPage()], h = await environment(original), gate = deferred();
+  const pending = h.app.importFiles([importedFile('Recovery accepted.md', 'Exact recovery import\r\n'), importedFile('Recovery failed.md', '', { gate })]);
+  await h.flush(); assert.ok(h.state.unread.includes('guest'));
+  gate.reject(new Error('Authored recovery read failure')); await pending; await h.flush();
+  assert.match(feedback(h).text, /1 imported/); assert.match(feedback(h).text, /Recovery failed\.md: Authored recovery read failure/);
+  assert.match(feedback(h).text, /(?:drafts|pages).*could not be read|saving.*paused|kept in this tab/i);
+  assert.equal(feedback(h).action, 'Export page'); assert.equal(feedback(h).actionHidden, false); assert.equal(feedback(h).error, true);
+  protectedSnapshot(h, original); assert.equal(h.nodes.get('recovery-panel').hidden, false);
+  await h.click('notice-action'); assert.equal(h.downloads.length, 1);
+  assert.equal(await h.downloads[0].blob.text(), 'Exact recovery import\r\n');
 });

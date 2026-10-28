@@ -16,6 +16,7 @@ let signupReady = null;
 let authDialogGeneration = 0;
 let initialized = false;
 let workspaceGeneration = 0;
+let importGeneration = 0;
 let transitioning = false;
 const saveTimers = new Map();
 let devicePending = 0;
@@ -412,11 +413,15 @@ function exportRecovery() {
   } catch { showNotice('Could not prepare a complete recovery file. Saved pages are unchanged. Export open pages individually, or try loading again.', true); }
 }
 async function importFiles(files) {
+  const batch = [...files];
+  if (!batch.length) return;
+  const generation = ++importGeneration;
   if (transitioning) { showNotice('Pages are still loading. Try the import again when they are ready.'); return; }
   const ctx = context();
   let imported = 0; const errors = [];
   // Imports are bounded individually and as a batch to avoid exhausting device storage.
-  for (const file of [...files].slice(0, 50)) {
+  for (const file of batch.slice(0, 50)) {
+    if (!sameContext(ctx)) return;
     if (!/\.(md|markdown|txt)$/i.test(file.name)) { errors.push(`${file.name}: use .md, .markdown, or .txt`); continue; }
     if (file.size > MAX_BYTES) { errors.push(`${file.name}: larger than 1 MiB`); continue; }
     try {
@@ -424,13 +429,23 @@ async function importFiles(files) {
       if (!sameContext(ctx)) return;
       const text = new TextDecoder('utf-8', { fatal: true }).decode(bytes);
       if (text.includes('\0')) throw new Error('not a text file');
-      const importedPage = await newPage(text, file.name.replace(/\.(md|markdown|txt)$/i, '').slice(0, 240), false); if (importedPage) imported++;
-    } catch (error) { errors.push(`${file.name}: ${error.message}`); }
+      const importedPage = await newPage(text, file.name.replace(/\.(md|markdown|txt)$/i, '').slice(0, 240), false);
+      if (!sameContext(ctx)) return;
+      if (importedPage) imported++;
+    } catch (error) {
+      if (!sameContext(ctx)) return;
+      errors.push(`${file.name}: ${error.message}`);
+    }
   }
-  if (files.length > 50) errors.push('Import up to 50 files at a time.');
-  if (errors.length) showNotice(`${imported ? `${imported} imported. ` : ''}${errors.join('; ').slice(0, 500)}`, true);
-  else if (imported) showNotice(`${imported} ${imported === 1 ? 'page has' : 'pages have'} a new home.`);
-  $('file-input').value = '';
+  if (!sameContext(ctx) || generation !== importGeneration) return;
+  if (batch.length > 50) errors.push('Import up to 50 files at a time.');
+  const message = errors.length ? `${imported ? `${imported} imported. ` : ''}${errors.join('; ').slice(0, 500)}`
+    : imported ? `${imported} ${imported === 1 ? 'page has' : 'pages have'} a new home.` : '';
+  if (unreadOwners.has(owner)) {
+    showNotice(`${message}${message ? ' ' : ''}Existing device drafts could not be read. New edits are kept in this tab; export them before reloading.`, true, 'Export page', exportPage);
+  } else if (deviceUnsafe) {
+    showNotice(`${message}${message ? ' ' : ''}Device storage is full or unavailable. Export your page to keep a copy.`, true, 'Export page', exportPage);
+  } else if (message) showNotice(message, Boolean(errors.length));
 }
 async function copyText(text, button) {
   try { await navigator.clipboard.writeText(text); button.textContent = 'Copied'; setTimeout(() => { button.textContent = 'Copy'; }, 1800); }
@@ -516,7 +531,11 @@ $('notice-close').onclick = hideNotice;
 $('export-recovery').onclick = exportRecovery;
 $('retry-workspace').onclick = loadWorkspace;
 $('import-button').onclick = () => $('file-input').click();
-$('file-input').addEventListener('change', (event) => importFiles(event.target.files));
+$('file-input').addEventListener('change', (event) => {
+  const files = [...event.currentTarget.files];
+  event.currentTarget.value = '';
+  return importFiles(files);
+});
 let dragDepth = 0;
 document.addEventListener('dragenter', (event) => { if ([...event.dataTransfer.types].includes('Files')) { event.preventDefault(); dragDepth++; $('drop-zone').hidden = false; } });
 document.addEventListener('dragleave', () => { dragDepth = Math.max(0, dragDepth - 1); if (!dragDepth) $('drop-zone').hidden = true; });

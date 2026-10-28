@@ -30,6 +30,11 @@ Markdown subset and can normalize formatting. Use source mode to preserve and
 edit unsupported extensions, such as footnotes or custom HTML. The renderer
 escapes raw HTML.
 
+Imports stop applying when the workspace changes or reloads. Overlapping batches
+can both add pages to the same workspace; the newest batch owns the final import
+message. Device-save warnings retain their export action. See the [focused import
+receipt](docs/results/2026/10-28/import-ownership.md) for checks and limits.
+
 ## Run locally
 
 Use Node.js 22 or newer. No package installation or build is needed.

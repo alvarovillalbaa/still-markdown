@@ -38,6 +38,16 @@ destinations are allowed. Clipboard HTML is not inserted into the editable DOM.
 Undo/redo history is in memory and resets when another page or source rendering
 is loaded. Import size limits are enforced before file text becomes a page.
 
+Imports snapshot the original file list during the picker/drop event, including
+its length for the 50-file limit. The picker resets after that synchronous
+snapshot, so an old import cannot clear a newer selection. Owner/workspace
+generation checks fence both successful and failed reads and the continuation
+after page creation. A newer batch takes ownership of terminal import feedback;
+older batches can still finish adding valid pages in the same workspace. Import
+counts acknowledge page creation, not completion of background device/cloud
+saves. Known device-save failures and unread-workspace gates retain their export
+warning/action alongside that feedback. See the [import receipt](results/2026/10-28/import-ownership.md).
+
 ## Device and cloud state
 
 IndexedDB database `still-workspaces` stores committed workspace snapshots under
