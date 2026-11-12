@@ -1,0 +1,250 @@
+﻿2026-11-12T21:07:50.4057938Z Current runner version: '2.338.2'
+2026-11-12T21:07:50.4094226Z ##[group]Runner Image Provisioner
+2026-11-12T21:07:50.4095695Z Hosted Compute Agent
+2026-11-12T21:07:50.4096840Z Version: 20261028.624
+2026-11-12T21:07:50.4097824Z Commit: 54898b74c23fde5556c9b3c3a2290865feef0dfe
+2026-11-12T21:07:50.4099113Z Build Date: 2026-10-28T21:51:42Z
+2026-11-12T21:07:50.4100218Z Worker ID: {2737b8de-1df2-44a1-a2c1-756e43dff4e0}
+2026-11-12T21:07:50.4101355Z Region: centralus
+2026-11-12T21:07:50.4102191Z Cloud: Azure
+2026-11-12T21:07:50.4102997Z ##[endgroup]
+2026-11-12T21:07:50.4105263Z ##[group]Operating System
+2026-11-12T21:07:50.4106310Z Ubuntu
+2026-11-12T21:07:50.4107334Z 24.04.5
+2026-11-12T21:07:50.4108577Z LTS
+2026-11-12T21:07:50.4109416Z ##[endgroup]
+2026-11-12T21:07:50.4110271Z ##[group]Runner Image
+2026-11-12T21:07:50.4111827Z Image: ubuntu-24.04
+2026-11-12T21:07:50.4112664Z Version: 20261101.360.1
+2026-11-12T21:07:50.4114655Z Included Software: https://github.com/actions/runner-images/blob/ubuntu24/20261101.360/images/ubuntu/Ubuntu2404-Readme.md
+2026-11-12T21:07:50.4117547Z Image Release: https://github.com/actions/runner-images/releases/tag/ubuntu24%2F20261101.360
+2026-11-12T21:07:50.4119274Z ##[endgroup]
+2026-11-12T21:07:50.4121201Z ##[group]GITHUB_TOKEN Permissions
+2026-11-12T21:07:50.4124552Z Actions: write
+2026-11-12T21:07:50.4125450Z Contents: write
+2026-11-12T21:07:50.4126335Z Metadata: read
+2026-11-12T21:07:50.4127395Z ##[endgroup]
+2026-11-12T21:07:50.4130519Z Secret source: Actions
+2026-11-12T21:07:50.4131926Z Cache mode: write
+2026-11-12T21:07:50.4133405Z Prepare workflow directory
+2026-11-12T21:07:50.4676764Z Prepare all required actions
+2026-11-12T21:07:50.4750769Z Getting action download info
+2026-11-12T21:07:50.7630395Z Download action repository 'actions/checkout@v4' (SHA:11d5960a326750d5838078e36cf38b85af677262)
+2026-11-12T21:07:50.8865829Z Download action repository 'actions/setup-node@v4' (SHA:49933ea5288caeca8642d1e84afbd3f7d6820020)
+2026-11-12T21:07:50.9641012Z Download action repository 'actions/upload-artifact@v4' (SHA:ea165f8d65b6e75b540449e92b4886f43607fa02)
+2026-11-12T21:07:51.1431799Z Complete job name: recovery
+2026-11-12T21:07:51.2366117Z ##[group]Run actions/checkout@v4
+2026-11-12T21:07:51.2367239Z with:
+2026-11-12T21:07:51.2367702Z   ref: 66c74cfd45a69a239b73e6c0a61b49c81c304e36
+2026-11-12T21:07:51.2368269Z   persist-credentials: false
+2026-11-12T21:07:51.2368792Z   repository: alvarovillalbaa/still-markdown
+2026-11-12T21:07:51.2372261Z   token: ***
+2026-11-12T21:07:51.2372650Z   ssh-strict: true
+2026-11-12T21:07:51.2373045Z   ssh-user: git
+2026-11-12T21:07:51.2373421Z   clean: true
+2026-11-12T21:07:51.2373832Z   sparse-checkout-cone-mode: true
+2026-11-12T21:07:51.2374309Z   fetch-depth: 1
+2026-11-12T21:07:51.2374714Z   fetch-tags: false
+2026-11-12T21:07:51.2375122Z   show-progress: true
+2026-11-12T21:07:51.2375543Z   lfs: false
+2026-11-12T21:07:51.2375924Z   submodules: false
+2026-11-12T21:07:51.2376326Z   set-safe-directory: true
+2026-11-12T21:07:51.2376911Z   allow-unsafe-pr-checkout: false
+2026-11-12T21:07:51.2377691Z env:
+2026-11-12T21:07:51.2378199Z   EXPECTED_SOURCE: 66c74cfd45a69a239b73e6c0a61b49c81c304e36
+2026-11-12T21:07:51.2378777Z ##[endgroup]
+2026-11-12T21:07:51.5447749Z Syncing repository: alvarovillalbaa/still-markdown
+2026-11-12T21:07:51.5450591Z ##[group]Getting Git version info
+2026-11-12T21:07:51.5451792Z Working directory is '/home/runner/work/still-markdown/still-markdown'
+2026-11-12T21:07:51.5453481Z [command]/usr/bin/git version
+2026-11-12T21:07:51.5557915Z git version 2.56.0
+2026-11-12T21:07:51.5597196Z ##[endgroup]
+2026-11-12T21:07:51.5613892Z Temporarily overriding HOME='/home/runner/work/_temp/e74183fe-9b95-4d3f-9fd2-de4d07640111' before making global git config changes
+2026-11-12T21:07:51.5616656Z Adding repository directory to the temporary git global config as a safe directory
+2026-11-12T21:07:51.5620839Z [command]/usr/bin/git config --global --add safe.directory /home/runner/work/still-markdown/still-markdown
+2026-11-12T21:07:51.5694812Z Deleting the contents of '/home/runner/work/still-markdown/still-markdown'
+2026-11-12T21:07:51.5701128Z ##[group]Initializing the repository
+2026-11-12T21:07:51.5707259Z [command]/usr/bin/git init /home/runner/work/still-markdown/still-markdown
+2026-11-12T21:07:51.5825482Z hint: Using 'master' as the name for the initial branch. This default branch name
+2026-11-12T21:07:51.5826734Z hint: will change to "main" in Git 3.0. To configure the initial branch name
+2026-11-12T21:07:51.5827604Z hint: to use in all of your new repositories, which will suppress this warning,
+2026-11-12T21:07:51.5828271Z hint: call:
+2026-11-12T21:07:51.5828643Z hint:
+2026-11-12T21:07:51.5829136Z hint: 	git config --global init.defaultBranch <name>
+2026-11-12T21:07:51.5829688Z hint:
+2026-11-12T21:07:51.5830211Z hint: Names commonly chosen instead of 'master' are 'main', 'trunk' and
+2026-11-12T21:07:51.5831047Z hint: 'development'. The just-created branch can be renamed via this command:
+2026-11-12T21:07:51.5831708Z hint:
+2026-11-12T21:07:51.5832083Z hint: 	git branch -m <name>
+2026-11-12T21:07:51.5832547Z hint:
+2026-11-12T21:07:51.5833132Z hint: Disable this message with "git config set advice.defaultBranchName false"
+2026-11-12T21:07:51.5850729Z Initialized empty Git repository in /home/runner/work/still-markdown/still-markdown/.git/
+2026-11-12T21:07:51.5863668Z [command]/usr/bin/git remote add origin https://github.com/alvarovillalbaa/still-markdown
+2026-11-12T21:07:51.5912275Z ##[endgroup]
+2026-11-12T21:07:51.5913020Z ##[group]Disabling automatic garbage collection
+2026-11-12T21:07:51.5918952Z [command]/usr/bin/git config --local gc.auto 0
+2026-11-12T21:07:51.5959999Z ##[endgroup]
+2026-11-12T21:07:51.5961461Z ##[group]Setting up auth
+2026-11-12T21:07:51.5969268Z [command]/usr/bin/git config --local --name-only --get-regexp core\.sshCommand
+2026-11-12T21:07:51.6029504Z [command]/usr/bin/git submodule foreach --recursive sh -c "git config --local --name-only --get-regexp 'core\.sshCommand' && git config --local --unset-all 'core.sshCommand' || :"
+2026-11-12T21:07:51.6461597Z [command]/usr/bin/git config --local --name-only --get-regexp http\.https\:\/\/github\.com\/\.extraheader
+2026-11-12T21:07:51.6496286Z [command]/usr/bin/git submodule foreach --recursive sh -c "git config --local --name-only --get-regexp 'http\.https\:\/\/github\.com\/\.extraheader' && git config --local --unset-all 'http.https://github.com/.extraheader' || :"
+2026-11-12T21:07:51.6691852Z [command]/usr/bin/git config --local --name-only --get-regexp ^includeIf\.gitdir:
+2026-11-12T21:07:51.6727138Z [command]/usr/bin/git submodule foreach --recursive git config --local --show-origin --name-only --get-regexp remote.origin.url
+2026-11-12T21:07:51.6928093Z [command]/usr/bin/git config --local http.https://github.com/.extraheader AUTHORIZATION: basic ***
+2026-11-12T21:07:51.6969405Z ##[endgroup]
+2026-11-12T21:07:51.6970246Z ##[group]Fetching the repository
+2026-11-12T21:07:51.6983926Z [command]/usr/bin/git -c protocol.version=2 fetch --no-tags --prune --no-recurse-submodules --depth=1 origin 66c74cfd45a69a239b73e6c0a61b49c81c304e36
+2026-11-12T21:07:52.1152055Z From https://github.com/alvarovillalbaa/still-markdown
+2026-11-12T21:07:52.1154076Z  * branch            66c74cfd45a69a239b73e6c0a61b49c81c304e36 -> FETCH_HEAD
+2026-11-12T21:07:52.1160203Z ##[endgroup]
+2026-11-12T21:07:52.1161529Z ##[group]Determining the checkout info
+2026-11-12T21:07:52.1163015Z ##[endgroup]
+2026-11-12T21:07:52.1163905Z [command]/usr/bin/git sparse-checkout disable
+2026-11-12T21:07:52.1219422Z [command]/usr/bin/git config --local --unset-all extensions.worktreeConfig
+2026-11-12T21:07:52.1254112Z ##[group]Checking out the ref
+2026-11-12T21:07:52.1259380Z [command]/usr/bin/git checkout --progress --force 66c74cfd45a69a239b73e6c0a61b49c81c304e36
+2026-11-12T21:07:52.1341357Z Note: switching to '66c74cfd45a69a239b73e6c0a61b49c81c304e36'.
+2026-11-12T21:07:52.1342353Z 
+2026-11-12T21:07:52.1342878Z You are in 'detached HEAD' state. You can look around, make experimental
+2026-11-12T21:07:52.1344240Z changes and commit them, and you can discard any commits you make in this
+2026-11-12T21:07:52.1346207Z state without impacting any branches by switching back to a branch.
+2026-11-12T21:07:52.1347875Z 
+2026-11-12T21:07:52.1348630Z If you want to create a new branch to retain commits you create, you may
+2026-11-12T21:07:52.1350268Z do so (now or later) by using -c with the switch command. Example:
+2026-11-12T21:07:52.1351026Z 
+2026-11-12T21:07:52.1351262Z   git switch -c <new-branch-name>
+2026-11-12T21:07:52.1351725Z 
+2026-11-12T21:07:52.1351951Z Or undo this operation with:
+2026-11-12T21:07:52.1352367Z 
+2026-11-12T21:07:52.1352555Z   git switch -
+2026-11-12T21:07:52.1352865Z 
+2026-11-12T21:07:52.1353433Z Turn off this advice by setting config variable advice.detachedHead to false
+2026-11-12T21:07:52.1354398Z 
+2026-11-12T21:07:52.1355092Z HEAD is now at 66c74cf test: prepare native device recovery qualification [skip actions]
+2026-11-12T21:07:52.1358093Z ##[endgroup]
+2026-11-12T21:07:52.1396248Z [command]/usr/bin/git log -1 --format=%H
+2026-11-12T21:07:52.1420539Z 66c74cfd45a69a239b73e6c0a61b49c81c304e36
+2026-11-12T21:07:52.1428968Z ##[group]Removing auth
+2026-11-12T21:07:52.1432754Z [command]/usr/bin/git config --local --name-only --get-regexp core\.sshCommand
+2026-11-12T21:07:52.1462974Z [command]/usr/bin/git submodule foreach --recursive sh -c "git config --local --name-only --get-regexp 'core\.sshCommand' && git config --local --unset-all 'core.sshCommand' || :"
+2026-11-12T21:07:52.1653829Z [command]/usr/bin/git config --local --name-only --get-regexp http\.https\:\/\/github\.com\/\.extraheader
+2026-11-12T21:07:52.1685074Z http.https://github.com/.extraheader
+2026-11-12T21:07:52.1692720Z [command]/usr/bin/git config --local --unset-all http.https://github.com/.extraheader
+2026-11-12T21:07:52.1724272Z [command]/usr/bin/git submodule foreach --recursive sh -c "git config --local --name-only --get-regexp 'http\.https\:\/\/github\.com\/\.extraheader' && git config --local --unset-all 'http.https://github.com/.extraheader' || :"
+2026-11-12T21:07:52.1916354Z [command]/usr/bin/git config --local --name-only --get-regexp ^includeIf\.gitdir:
+2026-11-12T21:07:52.1948879Z [command]/usr/bin/git submodule foreach --recursive git config --local --show-origin --name-only --get-regexp remote.origin.url
+2026-11-12T21:07:52.2142167Z ##[endgroup]
+2026-11-12T21:07:52.2450887Z ##[group]Run actions/setup-node@v4
+2026-11-12T21:07:52.2451606Z with:
+2026-11-12T21:07:52.2452055Z   node-version: 24.22.2
+2026-11-12T21:07:52.2452583Z   always-auth: false
+2026-11-12T21:07:52.2453094Z   check-latest: false
+2026-11-12T21:07:52.2460948Z   token: ***
+2026-11-12T21:07:52.2461385Z env:
+2026-11-12T21:07:52.2461983Z   EXPECTED_SOURCE: 66c74cfd45a69a239b73e6c0a61b49c81c304e36
+2026-11-12T21:07:52.2462863Z ##[endgroup]
+2026-11-12T21:07:52.3940709Z Found in cache @ /opt/hostedtoolcache/node/24.22.2/x64
+2026-11-12T21:07:52.3946333Z (node:2402) [DEP0040] DeprecationWarning: The `punycode` module is deprecated. Please use a userland alternative instead.
+2026-11-12T21:07:52.3949711Z (Use `node --trace-deprecation ...` to show where the warning was created)
+2026-11-12T21:07:52.3951649Z ##[group]Environment details
+2026-11-12T21:07:52.8159716Z node: v24.22.2
+2026-11-12T21:07:52.8161048Z npm: 11.19.1
+2026-11-12T21:07:52.8162197Z yarn: 1.22.22
+2026-11-12T21:07:52.8165482Z ##[endgroup]
+2026-11-12T21:07:52.8343419Z ##[group]Run python3 scripts/ci-device-recovery.py
+2026-11-12T21:07:52.8344668Z [36;1mpython3 scripts/ci-device-recovery.py[0m
+2026-11-12T21:07:52.8372317Z shell: /usr/bin/bash -e {0}
+2026-11-12T21:07:52.8373281Z env:
+2026-11-12T21:07:52.8374243Z   EXPECTED_SOURCE: 66c74cfd45a69a239b73e6c0a61b49c81c304e36
+2026-11-12T21:07:52.8375528Z   STILL_RECOVERY_PROOF: /home/runner/work/_temp/still-recovery-proof-43307137979
+2026-11-12T21:07:52.8376921Z ##[endgroup]
+2026-11-12T21:08:21.7292569Z STILL_RECOVERY_PACKET_BEGIN 78ce5231b75d4015762bf92a9581872093c439c9aafa2ca1e4b32b447d28cf11 5295
+2026-11-12T21:08:21.7383167Z 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
+2026-11-12T21:08:21.7436003Z STILL_RECOVERY_PACKET_END
+2026-11-12T21:08:21.7436595Z {"success": false, "elapsedSeconds": 28.831872713}
+2026-11-12T21:08:21.7448915Z ##[error]Process completed with exit code 1.
+2026-11-12T21:08:21.7539387Z ##[group]Run actions/upload-artifact@v4
+2026-11-12T21:08:21.7539690Z with:
+2026-11-12T21:08:21.7539910Z   name: still-device-recovery-43307137979
+2026-11-12T21:08:21.7540267Z   path: /home/runner/work/_temp/still-recovery-proof-43307137979/
+2026-11-12T21:08:21.7540614Z   if-no-files-found: error
+2026-11-12T21:08:21.7540850Z   retention-days: 2
+2026-11-12T21:08:21.7541175Z   compression-level: 6
+2026-11-12T21:08:21.7541393Z   overwrite: false
+2026-11-12T21:08:21.7541614Z   include-hidden-files: false
+2026-11-12T21:08:21.7541850Z env:
+2026-11-12T21:08:21.7542111Z   EXPECTED_SOURCE: 66c74cfd45a69a239b73e6c0a61b49c81c304e36
+2026-11-12T21:08:21.7542430Z ##[endgroup]
+2026-11-12T21:08:21.9235806Z (node:2529) [DEP0040] DeprecationWarning: The `punycode` module is deprecated. Please use a userland alternative instead.
+2026-11-12T21:08:21.9236828Z (Use `node --trace-deprecation ...` to show where the warning was created)
+2026-11-12T21:08:21.9418498Z With the provided path, there will be 9 files uploaded
+2026-11-12T21:08:21.9421035Z Artifact name is valid!
+2026-11-12T21:08:21.9421839Z Root directory input is valid!
+2026-11-12T21:08:22.2457413Z Beginning upload of artifact content to blob storage
+2026-11-12T21:08:22.2771410Z (node:2529) [DEP0169] DeprecationWarning: `url.parse()` behavior is not standardized and prone to errors that have security implications. Use the WHATWG URL API instead. CVEs are not issued for `url.parse()` vulnerabilities.
+2026-11-12T21:08:22.4332187Z Uploaded bytes 5284
+2026-11-12T21:08:22.4790823Z Finished uploading artifact content to blob storage!
+2026-11-12T21:08:22.4792462Z SHA256 digest of uploaded artifact zip is 141ca38b848b4e46b3b44028b31c99dc6721ed824a6b281021abe6d89c37342b
+2026-11-12T21:08:22.4793496Z Finalizing artifact upload
+2026-11-12T21:08:22.8703506Z Artifact still-device-recovery-43307137979.zip successfully finalized. Artifact ID 13982884229
+2026-11-12T21:08:22.8705480Z Artifact still-device-recovery-43307137979 has been successfully uploaded! Final size is 5284 bytes. Artifact ID is 13982884229
+2026-11-12T21:08:22.8711665Z Artifact download URL: https://github.com/alvarovillalbaa/still-markdown/actions/runs/43307137979/artifacts/13982884229
+2026-11-12T21:08:22.8845739Z ##[group]Run python3 - <<'PY'
+2026-11-12T21:08:22.8846112Z [36;1mpython3 - <<'PY'[0m
+2026-11-12T21:08:22.8846673Z [36;1mimport json, os, shutil, subprocess[0m
+2026-11-12T21:08:22.8847098Z [36;1mfrom pathlib import Path[0m
+2026-11-12T21:08:22.8847434Z [36;1mrepo = 'alvarovillalbaa/still-markdown'[0m
+2026-11-12T21:08:22.8847836Z [36;1mbranch = 'qa/still-device-recovery-20261112-1'[0m
+2026-11-12T21:08:22.8848236Z [36;1massert os.environ['GITHUB_REPOSITORY'] == repo[0m
+2026-11-12T21:08:22.8848674Z [36;1massert os.environ['GITHUB_REF'] == 'refs/heads/' + branch[0m
+2026-11-12T21:08:22.8849068Z [36;1mdef api(route, method='GET'):[0m
+2026-11-12T21:08:22.8849641Z [36;1m    result = subprocess.run(['gh', 'api', '--method', method, 'repos/' + repo + '/' + route], capture_output=True, timeout=20)[0m
+2026-11-12T21:08:22.8850645Z [36;1m    print(json.dumps({'route': route, 'method': method, 'exit': result.returncode, 'stdout': result.stdout.decode(), 'stderr': result.stderr.decode()}))[0m
+2026-11-12T21:08:22.8851335Z [36;1m    assert result.returncode == 0[0m
+2026-11-12T21:08:22.8851734Z [36;1m    return json.loads(result.stdout) if result.stdout else None[0m
+2026-11-12T21:08:22.8852209Z [36;1mrun = api('actions/runs/' + os.environ['GITHUB_RUN_ID'])[0m
+2026-11-12T21:08:22.8852728Z [36;1massert run['head_sha'] == os.environ['GITHUB_SHA'] and run['head_branch'] == branch[0m
+2026-11-12T21:08:22.8853272Z [36;1massert run['path'] == '.github/workflows/device-recovery.yml'[0m
+2026-11-12T21:08:22.8853700Z [36;1mref = api('git/ref/heads/' + branch)[0m
+2026-11-12T21:08:22.8854067Z [36;1massert ref['object']['sha'] == run['head_sha'][0m
+2026-11-12T21:08:22.8854533Z [36;1mapi('actions/workflows/' + str(run['workflow_id']) + '/disable', 'PUT')[0m
+2026-11-12T21:08:22.8855127Z [36;1massert api('actions/workflows/' + str(run['workflow_id']))['state'] == 'disabled_manually'[0m
+2026-11-12T21:08:22.8855660Z [36;1mapi('git/refs/heads/' + branch, 'DELETE')[0m
+2026-11-12T21:08:22.8856068Z [36;1massert api('git/matching-refs/heads/' + branch) == [][0m
+2026-11-12T21:08:22.8856722Z [36;1mproof = Path(os.environ['STILL_RECOVERY_PROOF']).resolve()[0m
+2026-11-12T21:08:22.8857457Z [36;1massert proof.parent == Path(os.environ['RUNNER_TEMP']).resolve()[0m
+2026-11-12T21:08:22.8858039Z [36;1massert proof.name == 'still-recovery-proof-' + os.environ['GITHUB_RUN_ID'][0m
+2026-11-12T21:08:22.8858614Z [36;1mif proof.exists():[0m
+2026-11-12T21:08:22.8858954Z [36;1m    assert (proof / 'controller.json').is_file()[0m
+2026-11-12T21:08:22.8859333Z [36;1m    shutil.rmtree(proof)[0m
+2026-11-12T21:08:22.8859645Z [36;1massert not proof.exists()[0m
+2026-11-12T21:08:22.8859987Z [36;1mprint('STILL_RECOVERY_CONTROL_RETIRED')[0m
+2026-11-12T21:08:22.8860322Z [36;1mPY[0m
+2026-11-12T21:08:22.8876771Z shell: /usr/bin/bash -e {0}
+2026-11-12T21:08:22.8877240Z env:
+2026-11-12T21:08:22.8877561Z   EXPECTED_SOURCE: 66c74cfd45a69a239b73e6c0a61b49c81c304e36
+2026-11-12T21:08:22.8880213Z   GH_TOKEN: ***
+2026-11-12T21:08:22.8880570Z   STILL_RECOVERY_PROOF: /home/runner/work/_temp/still-recovery-proof-43307137979
+2026-11-12T21:08:22.8880959Z ##[endgroup]
+2026-11-12T21:08:25.9554839Z {"route": "actions/runs/43307137979", "method": "GET", "exit": 0, "stdout": "{\"id\":43307137979,\"name\":\"Still device recovery\",\"node_id\":\"WFR_kwLOVRVw488AAAAKFU57uw\",\"head_branch\":\"qa/still-device-recovery-20261112-1\",\"head_sha\":\"65838a216f14d99280ec5d2bbd11f087c979f57d\",\"path\":\".github/workflows/device-recovery.yml\",\"display_title\":\"ci: scope runner paths to steps for device recovery\",\"run_number\":2,\"event\":\"push\",\"status\":\"in_progress\",\"conclusion\":null,\"workflow_id\":416577013,\"check_suite_id\":117276324374,\"check_suite_node_id\":\"CS_kwDOVRVw488AAAAbTjayFg\",\"url\":\"https://api.github.com/repos/alvarovillalbaa/still-markdown/actions/runs/43307137979\",\"html_url\":\"https://github.com/alvarovillalbaa/still-markdown/actions/runs/43307137979\",\"pull_requests\":[],\"created_at\":\"2026-11-12T21:07:46Z\",\"updated_at\":\"2026-11-12T21:07:50Z\",\"actor\":{\"login\":\"alvarovillalbaa\",\"id\":87529457,\"node_id\":\"MDQ6VXNlcjg3NTI5NDU3\",\"avatar_url\":\"https://avatars.githubusercontent.com/u/87529457?v=4\",\"gravatar_id\":\"\",\"url\":\"https://api.github.com/users/alvarovillalbaa\",\"html_url\":\"https://github.com/alvarovillalbaa\",\"followers_url\":\"https://api.github.com/users/alvarovillalbaa/followers\",\"following_url\":\"https://api.github.com/users/alvarovillalbaa/following{/other_user}\",\"gists_url\":\"https://api.github.com/users/alvarovillalbaa/gists{/gist_id}\",\"starred_url\":\"https://api.github.com/users/alvarovillalbaa/starred{/owner}{/repo}\",\"subscriptions_url\":\"https://api.github.com/users/alvarovillalbaa/subscriptions\",\"organizations_url\":\"https://api.github.com/users/alvarovillalbaa/orgs\",\"repos_url\":\"https://api.github.com/users/alvarovillalbaa/repos\",\"events_url\":\"https://api.github.com/users/alvarovillalbaa/events{/privacy}\",\"received_events_url\":\"https://api.github.com/users/alvarovillalbaa/received_events\",\"type\":\"User\",\"user_view_type\":\"public\",\"site_admin\":false},\"run_attempt\":1,\"referenced_workflows\":[],\"run_started_at\":\"2026-11-12T21:07:46Z\",\"triggering_actor\":{\"login\":\"alvarovillalbaa\",\"id\":87529457,\"node_id\":\"MDQ6VXNlcjg3NTI5NDU3\",\"avatar_url\":\"https://avatars.githubusercontent.com/u/87529457?v=4\",\"gravatar_id\":\"\",\"url\":\"https://api.github.com/users/alvarovillalbaa\",\"html_url\":\"https://github.com/alvarovillalbaa\",\"followers_url\":\"https://api.github.com/users/alvarovillalbaa/followers\",\"following_url\":\"https://api.github.com/users/alvarovillalbaa/following{/other_user}\",\"gists_url\":\"https://api.github.com/users/alvarovillalbaa/gists{/gist_id}\",\"starred_url\":\"https://api.github.com/users/alvarovillalbaa/starred{/owner}{/repo}\",\"subscriptions_url\":\"https://api.github.com/users/alvarovillalbaa/subscriptions\",\"organizations_url\":\"https://api.github.com/users/alvarovillalbaa/orgs\",\"repos_url\":\"https://api.github.com/users/alvarovillalbaa/repos\",\"events_url\":\"https://api.github.com/users/alvarovillalbaa/events{/privacy}\",\"received_events_url\":\"https://api.github.com/users/alvarovillalbaa/received_events\",\"type\":\"User\",\"user_view_type\":\"public\",\"site_admin\":false},\"jobs_url\":\"https://api.github.com/repos/alvarovillalbaa/still-markdown/actions/runs/43307137979/jobs\",\"logs_url\":\"https://api.github.com/repos/alvarovillalbaa/still-markdown/actions/runs/43307137979/logs\",\"check_suite_url\":\"https://api.github.com/repos/alvarovillalbaa/still-markdown/check-suites/117276324374\",\"artifacts_url\":\"https://api.github.com/repos/alvarovillalbaa/still-markdown/actions/runs/43307137979/artifacts\",\"cancel_url\":\"https://api.github.com/repos/alvarovillalbaa/still-markdown/actions/runs/43307137979/cancel\",\"rerun_url\":\"https://api.github.com/repos/alvarovillalbaa/still-markdown/actions/runs/43307137979/rerun\",\"previous_attempt_url\":null,\"workflow_url\":\"https://api.github.com/repos/alvarovillalbaa/still-markdown/actions/workflows/416577013\",\"head_commit\":{\"id\":\"65838a216f14d99280ec5d2bbd11f087c979f57d\",\"tree_id\":\"c894f2eece76cb659e8d7e2e7ea7337c56912ebb\",\"message\":\"ci: scope runner paths to steps for device recovery\",\"timestamp\":\"2026-11-12T21:07:42Z\",\"author\":{\"name\":\"Alvaro Villalba Perez\",\"email\":\"87529457+alvarovillalbaa@users.noreply.github.com\"},\"committer\":{\"name\":\"Alvaro Villalba Perez\",\"email\":\"87529457+alvarovillalbaa@users.noreply.github.com\"}},\"repository\":{\"id\":1427468515,\"node_id\":\"R_kgDOVRVw4w\",\"name\":\"still-markdown\",\"full_name\":\"alvarovillalbaa/still-markdown\",\"private\":false,\"owner\":{\"login\":\"alvarovillalbaa\",\"id\":87529457,\"node_id\":\"MDQ6VXNlcjg3NTI5NDU3\",\"avatar_url\":\"https://avatars.githubusercontent.com/u/87529457?v=4\",\"gravatar_id\":\"\",\"url\":\"https://api.github.com/users/alvarovillalbaa\",\"html_url\":\"https://github.com/alvarovillalbaa\",\"followers_url\":\"https://api.github.com/users/alvarovillalbaa/followers\",\"following_url\":\"https://api.github.com/users/alvarovillalbaa/following{/other_user}\",\"gists_url\":\"https://api.github.com/users/alvarovillalbaa/gists{/gist_id}\",\"starred_url\":\"https://api.github.com/users/alvarovillalbaa/starred{/owner}{/repo}\",\"subscriptions_url\":\"https://api.github.com/users/alvarovillalbaa/subscriptions\",\"organizations_url\":\"https://api.github.com/users/alvarovillalbaa/orgs\",\"repos_url\":\"https://api.github.com/users/alvarovillalbaa/repos\",\"events_url\":\"https://api.github.com/users/alvarovillalbaa/events{/privacy}\",\"received_events_url\":\"https://api.github.com/users/alvarovillalbaa/received_events\",\"type\":\"User\",\"user_view_type\":\"public\",\"site_admin\":false},\"html_url\":\"https://github.com/alvarovillalbaa/still-markdown\",\"description\":\"A quiet, in-house Markdown editor. Private pages, easy imports, and MCP access for your tools.\",\"fork\":false,\"url\":\"https://api.github.com/repos/alvarovillalbaa/still-markdown\",\"forks_url\":\"https://api.github.com/repos/alvarovillalbaa/still-markdown/forks\",\"keys_url\":\"https://api.github.com/repos/alvarovillalbaa/still-markdown/keys{/key_id}\",\"collaborators_url\":\"https://api.github.com/repos/alvarovillalbaa/still-markdown/collaborators{/collaborator}\",\"teams_url\":\"https://api.github.com/repos/alvarovillalbaa/still-markdown/teams\",\"hooks_url\":\"https://api.github.com/repos/alvarovillalbaa/still-markdown/hooks\",\"issue_events_url\":\"https://api.github.com/repos/alvarovillalbaa/still-markdown/issues/events{/number}\",\"events_url\":\"https://api.github.com/repos/alvarovillalbaa/still-markdown/events\",\"assignees_url\":\"https://api.github.com/repos/alvarovillalbaa/still-markdown/assignees{/user}\",\"branches_url\":\"https://api.github.com/repos/alvarovillalbaa/still-markdown/branches{/branch}\",\"tags_url\":\"https://api.github.com/repos/alvarovillalbaa/still-markdown/tags\",\"blobs_url\":\"https://api.github.com/repos/alvarovillalbaa/still-markdown/git/blobs{/sha}\",\"git_tags_url\":\"https://api.github.com/repos/alvarovillalbaa/still-markdown/git/tags{/sha}\",\"git_refs_url\":\"https://api.github.com/repos/alvarovillalbaa/still-markdown/git/refs{/sha}\",\"trees_url\":\"https://api.github.com/repos/alvarovillalbaa/still-markdown/git/trees{/sha}\",\"statuses_url\":\"https://api.github.com/repos/alvarovillalbaa/still-markdown/statuses/{sha}\",\"languages_url\":\"https://api.github.com/repos/alvarovillalbaa/still-markdown/languages\",\"stargazers_url\":\"https://api.github.com/repos/alvarovillalbaa/still-markdown/stargazers\",\"contributors_url\":\"https://api.github.com/repos/alvarovillalbaa/still-markdown/contributors\",\"subscribers_url\":\"https://api.github.com/repos/alvarovillalbaa/still-markdown/subscribers\",\"subscription_url\":\"https://api.github.com/repos/alvarovillalbaa/still-markdown/subscription\",\"commits_url\":\"https://api.github.com/repos/alvarovillalbaa/still-markdown/commits{/sha}\",\"git_commits_url\":\"https://api.github.com/repos/alvarovillalbaa/still-markdown/git/commits{/sha}\",\"comments_url\":\"https://api.github.com/repos/alvarovillalbaa/still-markdown/comments{/number}\",\"issue_comment_url\":\"https://api.github.com/repos/alvarovillalbaa/still-markdown/issues/comments{/number}\",\"contents_url\":\"https://api.github.com/repos/alvarovillalbaa/still-markdown/contents/{+path}\",\"compare_url\":\"https://api.github.com/repos/alvarovillalbaa/still-markdown/compare/{base}...{head}\",\"merges_url\":\"https://api.github.com/repos/alvarovillalbaa/still-markdown/merges\",\"archive_url\":\"https://api.github.com/repos/alvarovillalbaa/still-markdown/{archive_format}{/ref}\",\"downloads_url\":\"https://api.github.com/repos/alvarovillalbaa/still-markdown/downloads\",\"issues_url\":\"https://api.github.com/repos/alvarovillalbaa/still-markdown/issues{/number}\",\"pulls_url\":\"https://api.github.com/repos/alvarovillalbaa/still-markdown/pulls{/number}\",\"milestones_url\":\"https://api.github.com/repos/alvarovillalbaa/still-markdown/milestones{/number}\",\"notifications_url\":\"https://api.github.com/repos/alvarovillalbaa/still-markdown/notifications{?since,all,participating}\",\"labels_url\":\"https://api.github.com/repos/alvarovillalbaa/still-markdown/labels{/name}\",\"releases_url\":\"https://api.github.com/repos/alvarovillalbaa/still-markdown/releases{/id}\",\"deployments_url\":\"https://api.github.com/repos/alvarovillalbaa/still-markdown/deployments\"},\"head_repository\":{\"id\":1427468515,\"node_id\":\"R_kgDOVRVw4w\",\"name\":\"still-markdown\",\"full_name\":\"alvarovillalbaa/still-markdown\",\"private\":false,\"owner\":{\"login\":\"alvarovillalbaa\",\"id\":87529457,\"node_id\":\"MDQ6VXNlcjg3NTI5NDU3\",\"avatar_url\":\"https://avatars.githubusercontent.com/u/87529457?v=4\",\"gravatar_id\":\"\",\"url\":\"https://api.github.com/users/alvarovillalbaa\",\"html_url\":\"https://github.com/alvarovillalbaa\",\"followers_url\":\"https://api.github.com/users/alvarovillalbaa/followers\",\"following_url\":\"https://api.github.com/users/alvarovillalbaa/following{/other_user}\",\"gists_url\":\"https://api.github.com/users/alvarovillalbaa/gists{/gist_id}\",\"starred_url\":\"https://api.github.com/users/alvarovillalbaa/starred{/owner}{/repo}\",\"subscriptions_url\":\"https://api.github.com/users/alvarovillalbaa/subscriptions\",\"organizations_url\":\"https://api.github.com/users/alvarovillalbaa/orgs\",\"repos_url\":\"https://api.github.com/users/alvarovillalbaa/repos\",\"events_url\":\"https://api.github.com/users/alvarovillalbaa/events{/privacy}\",\"received_events_url\":\"https://api.github.com/users/alvarovillalbaa/received_events\",\"type\":\"User\",\"user_view_type\":\"public\",\"site_admin\":false},\"html_url\":\"https://github.com/alvarovillalbaa/still-markdown\",\"description\":\"A quiet, in-house Markdown editor. Private pages, easy imports, and MCP access for your tools.\",\"fork\":false,\"url\":\"https://api.github.com/repos/alvarovillalbaa/still-markdown\",\"forks_url\":\"https://api.github.com/repos/alvarovillalbaa/still-markdown/forks\",\"keys_url\":\"https://api.github.com/repos/alvarovillalbaa/still-markdown/keys{/key_id}\",\"collaborators_url\":\"https://api.github.com/repos/alvarovillalbaa/still-markdown/collaborators{/collaborator}\",\"teams_url\":\"https://api.github.com/repos/alvarovillalbaa/still-markdown/teams\",\"hooks_url\":\"https://api.github.com/repos/alvarovillalbaa/still-markdown/hooks\",\"issue_events_url\":\"https://api.github.com/repos/alvarovillalbaa/still-markdown/issues/events{/number}\",\"events_url\":\"https://api.github.com/repos/alvarovillalbaa/still-markdown/events\",\"assignees_url\":\"https://api.github.com/repos/alvarovillalbaa/still-markdown/assignees{/user}\",\"branches_url\":\"https://api.github.com/repos/alvarovillalbaa/still-markdown/branches{/branch}\",\"tags_url\":\"https://api.github.com/repos/alvarovillalbaa/still-markdown/tags\",\"blobs_url\":\"https://api.github.com/repos/alvarovillalbaa/still-markdown/git/blobs{/sha}\",\"git_tags_url\":\"https://api.github.com/repos/alvarovillalbaa/still-markdown/git/tags{/sha}\",\"git_refs_url\":\"https://api.github.com/repos/alvarovillalbaa/still-markdown/git/refs{/sha}\",\"trees_url\":\"https://api.github.com/repos/alvarovillalbaa/still-markdown/git/trees{/sha}\",\"statuses_url\":\"https://api.github.com/repos/alvarovillalbaa/still-markdown/statuses/{sha}\",\"languages_url\":\"https://api.github.com/repos/alvarovillalbaa/still-markdown/languages\",\"stargazers_url\":\"https://api.github.com/repos/alvarovillalbaa/still-markdown/stargazers\",\"contributors_url\":\"https://api.github.com/repos/alvarovillalbaa/still-markdown/contributors\",\"subscribers_url\":\"https://api.github.com/repos/alvarovillalbaa/still-markdown/subscribers\",\"subscription_url\":\"https://api.github.com/repos/alvarovillalbaa/still-markdown/subscription\",\"commits_url\":\"https://api.github.com/repos/alvarovillalbaa/still-markdown/commits{/sha}\",\"git_commits_url\":\"https://api.github.com/repos/alvarovillalbaa/still-markdown/git/commits{/sha}\",\"comments_url\":\"https://api.github.com/repos/alvarovillalbaa/still-markdown/comments{/number}\",\"issue_comment_url\":\"https://api.github.com/repos/alvarovillalbaa/still-markdown/issues/comments{/number}\",\"contents_url\":\"https://api.github.com/repos/alvarovillalbaa/still-markdown/contents/{+path}\",\"compare_url\":\"https://api.github.com/repos/alvarovillalbaa/still-markdown/compare/{base}...{head}\",\"merges_url\":\"https://api.github.com/repos/alvarovillalbaa/still-markdown/merges\",\"archive_url\":\"https://api.github.com/repos/alvarovillalbaa/still-markdown/{archive_format}{/ref}\",\"downloads_url\":\"https://api.github.com/repos/alvarovillalbaa/still-markdown/downloads\",\"issues_url\":\"https://api.github.com/repos/alvarovillalbaa/still-markdown/issues{/number}\",\"pulls_url\":\"https://api.github.com/repos/alvarovillalbaa/still-markdown/pulls{/number}\",\"milestones_url\":\"https://api.github.com/repos/alvarovillalbaa/still-markdown/milestones{/number}\",\"notifications_url\":\"https://api.github.com/repos/alvarovillalbaa/still-markdown/notifications{?since,all,participating}\",\"labels_url\":\"https://api.github.com/repos/alvarovillalbaa/still-markdown/labels{/name}\",\"releases_url\":\"https://api.github.com/repos/alvarovillalbaa/still-markdown/releases{/id}\",\"deployments_url\":\"https://api.github.com/repos/alvarovillalbaa/still-markdown/deployments\"}}", "stderr": ""}
+2026-11-12T21:08:25.9601022Z {"route": "git/ref/heads/qa/still-device-recovery-20261112-1", "method": "GET", "exit": 0, "stdout": "{\"ref\":\"refs/heads/qa/still-device-recovery-20261112-1\",\"node_id\":\"REF_kwDOVRVw49oALnJlZnMvaGVhZHMvcWEvc3RpbGwtZGV2aWNlLXJlY292ZXJ5LTIwMjYxMTEyLTE\",\"url\":\"https://api.github.com/repos/alvarovillalbaa/still-markdown/git/refs/heads/qa/still-device-recovery-20261112-1\",\"object\":{\"sha\":\"65838a216f14d99280ec5d2bbd11f087c979f57d\",\"type\":\"commit\",\"url\":\"https://api.github.com/repos/alvarovillalbaa/still-markdown/git/commits/65838a216f14d99280ec5d2bbd11f087c979f57d\"}}", "stderr": ""}
+2026-11-12T21:08:25.9603311Z {"route": "actions/workflows/416577013/disable", "method": "PUT", "exit": 0, "stdout": "", "stderr": ""}
+2026-11-12T21:08:25.9606247Z {"route": "actions/workflows/416577013", "method": "GET", "exit": 0, "stdout": "{\"id\":416577013,\"node_id\":\"W_kwDOVRVw484Y1HX1\",\"name\":\".github/workflows/device-recovery.yml\",\"path\":\".github/workflows/device-recovery.yml\",\"state\":\"disabled_manually\",\"created_at\":\"2026-11-12T21:05:37.000Z\",\"updated_at\":\"2026-11-12T21:08:24.000Z\",\"url\":\"https://api.github.com/repos/alvarovillalbaa/still-markdown/actions/workflows/416577013\",\"html_url\":\"https://github.com/alvarovillalbaa/still-markdown/blob/main/.github/workflows/device-recovery.yml\",\"badge_url\":\"https://github.com/alvarovillalbaa/still-markdown/workflows/.github/workflows/device-recovery.yml/badge.svg\"}", "stderr": ""}
+2026-11-12T21:08:25.9609182Z {"route": "git/refs/heads/qa/still-device-recovery-20261112-1", "method": "DELETE", "exit": 0, "stdout": "", "stderr": ""}
+2026-11-12T21:08:25.9610067Z {"route": "git/matching-refs/heads/qa/still-device-recovery-20261112-1", "method": "GET", "exit": 0, "stdout": "[]", "stderr": ""}
+2026-11-12T21:08:25.9610657Z STILL_RECOVERY_CONTROL_RETIRED
+2026-11-12T21:08:25.9709352Z Post job cleanup.
+2026-11-12T21:08:26.0618104Z [command]/usr/bin/git version
+2026-11-12T21:08:26.0662611Z git version 2.56.0
+2026-11-12T21:08:26.0701081Z Temporarily overriding HOME='/home/runner/work/_temp/1d13760d-fd1e-4ec9-b62f-12fa5dfac6ec' before making global git config changes
+2026-11-12T21:08:26.0702696Z Adding repository directory to the temporary git global config as a safe directory
+2026-11-12T21:08:26.0707152Z [command]/usr/bin/git config --global --add safe.directory /home/runner/work/still-markdown/still-markdown
+2026-11-12T21:08:26.0750706Z [command]/usr/bin/git config --local --name-only --get-regexp core\.sshCommand
+2026-11-12T21:08:26.0788594Z [command]/usr/bin/git submodule foreach --recursive sh -c "git config --local --name-only --get-regexp 'core\.sshCommand' && git config --local --unset-all 'core.sshCommand' || :"
+2026-11-12T21:08:26.1014697Z [command]/usr/bin/git config --local --name-only --get-regexp http\.https\:\/\/github\.com\/\.extraheader
+2026-11-12T21:08:26.1052670Z [command]/usr/bin/git submodule foreach --recursive sh -c "git config --local --name-only --get-regexp 'http\.https\:\/\/github\.com\/\.extraheader' && git config --local --unset-all 'http.https://github.com/.extraheader' || :"
+2026-11-12T21:08:26.1277785Z [command]/usr/bin/git config --local --name-only --get-regexp ^includeIf\.gitdir:
+2026-11-12T21:08:26.1313478Z [command]/usr/bin/git submodule foreach --recursive git config --local --show-origin --name-only --get-regexp remote.origin.url
+2026-11-12T21:08:26.1786010Z Cleaning up orphan processes
+2026-11-12T21:08:26.2111823Z ##[warning]Node.js 20 is deprecated. The following actions target Node.js 20 but are being forced to run on Node.js 24: actions/checkout@v4, actions/setup-node@v4, actions/upload-artifact@v4. For more information see: https://github.blog/changelog/2025-09-19-deprecation-of-node-20-on-github-actions-runners/

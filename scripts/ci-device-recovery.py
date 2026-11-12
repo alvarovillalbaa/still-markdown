@@ -10,12 +10,14 @@ import shutil
 import signal
 import subprocess
 import time
+import traceback
+import urllib.error
 import urllib.request
 import zipfile
 
 assert os.environ.get("GITHUB_ACTIONS") == "true"
 assert os.environ["GITHUB_REPOSITORY"] == "alvarovillalbaa/still-markdown"
-assert os.environ["GITHUB_REF"] == "refs/heads/qa/still-device-recovery-20261112-1"
+assert os.environ["GITHUB_REF"] == "refs/heads/qa/still-device-recovery-20261112-2"
 source = Path.cwd()
 temporary = Path(os.environ["RUNNER_TEMP"]).resolve()
 root = temporary / f"still-recovery-{os.environ['GITHUB_RUN_ID']}"
@@ -104,15 +106,37 @@ try:
     server = subprocess.Popen(["node", "scripts/dev.mjs"], env=env, stdout=stdout_file, stderr=stderr_file, start_new_session=True)
     receipt["server"] = {"pid": server.pid}
     deadline = time.monotonic() + 15
+    receipt["readiness"] = []
     while True:
         assert server.poll() is None
         try:
             with urllib.request.urlopen("http://127.0.0.1:3210/favicon.svg", timeout=1) as response:
+                body = response.read(1_048_577)
+                assert len(body) <= 1_048_576
+                receipt["readiness"].append({"status": response.status, "bytes": len(body), "sha256": digest(body)})
                 assert response.status == 200
+                assert body == (source / "public/favicon.svg").read_bytes()
             break
-        except OSError:
+        except urllib.error.HTTPError as error:
+            body = error.read(1_048_577)
+            receipt["readiness"].append({"status": error.code, "body": base64.b64encode(body).decode()})
+            raise
+        except OSError as error:
+            receipt["readiness"].append({"error": repr(error)})
             assert time.monotonic() < deadline
             time.sleep(0.2)
+    receipt["http"] = []
+    for route, expected in [("/", 200), ("/%2e%2e/package.json", 403)]:
+        try:
+            with urllib.request.urlopen("http://127.0.0.1:3210" + route, timeout=3) as response:
+                status, body = response.status, response.read(1_048_577)
+        except urllib.error.HTTPError as error:
+            status, body = error.code, error.read(1_048_577)
+        assert len(body) <= 1_048_576
+        receipt["http"].append({"route": route, "status": status, "body": base64.b64encode(body).decode(), "sha256": digest(body)})
+        assert status == expected
+        if route == "/":
+            assert body == (source / "public/index.html").read_bytes()
     env["PLAYWRIGHT_MODULE"] = str(root / "tools/node_modules/playwright/index.mjs")
     env["STILL_RECOVERY_OUT"] = str(proof)
     command(["node", "scripts/device-recovery-browser.mjs"], 135)
@@ -122,6 +146,7 @@ try:
     receipt["success"] = True
 except BaseException as error:
     receipt["error"] = repr(error)
+    receipt["traceback"] = traceback.format_exc()
 finally:
     try:
         if server:

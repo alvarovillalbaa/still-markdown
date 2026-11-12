@@ -11,6 +11,7 @@ await mkdir(out, { recursive: true });
 const hash = (data) => createHash('sha256').update(data).digest('hex');
 const result = { version: 1, cases: [], responses: [], violations: [], errors: [], success: false };
 const responses = [];
+const responseErrors = [];
 const allowed = new Set(['/', '/favicon.svg', '/styles.css', '/app.js', '/editor.js', '/cloud.js', '/storage.js', '/markdown.js', '/api/config']);
 const projection = (rows) => rows.map(({ id, title, markdown }) => ({ id, title, markdown })).sort((a, b) => a.id.localeCompare(b.id));
 let browser;
@@ -96,7 +97,7 @@ try {
           assert.equal(response.status(), 200);
           const relative = new URL(response.url()).pathname;
           if (relative !== '/api/config') assert.deepEqual(bytes, await readFile(path.join('public', relative === '/' ? 'index.html' : relative.slice(1))));
-        })());
+        })().catch((error) => responseErrors.push(String(error))));
       });
     });
     try {
@@ -163,7 +164,13 @@ try {
       item.recoveredGeometry = await screenshot(page, `${id}-recovered.png`);
       item.passed = true;
     } catch (error) {
-      item.error = error.stack; throw error;
+      item.error = error.stack;
+      const failedPage = context.pages().at(-1);
+      if (failedPage && !failedPage.isClosed()) {
+        await failedPage.screenshot({ path: path.join(out, `${id}-failure.png`), fullPage: true });
+        item.failureText = (await failedPage.locator('body').innerText()).slice(0, 12_000);
+      }
+      throw error;
     } finally { await context.close(); item.contextClosed = true; }
   }
   await Promise.all(responses);
@@ -172,7 +179,7 @@ try {
 } catch (error) { result.error = error.stack; process.exitCode = 1; }
 finally {
   const pending = await Promise.allSettled(responses);
-  result.responseFailures = pending.filter((r) => r.status === 'rejected').map((r) => String(r.reason));
+  result.responseFailures = [...responseErrors, ...pending.filter((r) => r.status === 'rejected').map((r) => String(r.reason))];
   if (result.responseFailures.length) { result.success = false; process.exitCode = 1; }
   if (browser) { await browser.close(); result.browserClosed = true; }
   await writeFile(path.join(out, 'browser.json'), `${JSON.stringify(result, null, 2)}\n`);

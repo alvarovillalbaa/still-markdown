@@ -1,12 +1,12 @@
 name: Still device recovery
 on:
   push:
-    branches: [qa/still-device-recovery-20261112-1]
+    branches: [qa/still-device-recovery-20261112-2]
 permissions:
   contents: write
   actions: write
 concurrency:
-  group: still-device-recovery-20261112-1
+  group: still-device-recovery-20261112-2
   cancel-in-progress: false
 jobs:
   recovery:
@@ -14,7 +14,6 @@ jobs:
     timeout-minutes: 10
     env:
       EXPECTED_SOURCE: REPLACE_WITH_PREPARATION_SHA
-      STILL_RECOVERY_PROOF: ${{ runner.temp }}/still-recovery-proof-${{ github.run_id }}
     steps:
       - uses: actions/checkout@v4
         with:
@@ -24,24 +23,27 @@ jobs:
         with:
           node-version: '24.22.2'
       - name: Two native recovery cases
+        env:
+          STILL_RECOVERY_PROOF: ${{ runner.temp }}/still-recovery-proof-${{ github.run_id }}
         run: python3 scripts/ci-device-recovery.py
       - uses: actions/upload-artifact@v4
         if: always()
         with:
           name: still-device-recovery-${{ github.run_id }}
-          path: ${{ env.STILL_RECOVERY_PROOF }}/
+          path: ${{ runner.temp }}/still-recovery-proof-${{ github.run_id }}/
           if-no-files-found: error
           retention-days: 2
       - name: Retire only this control
         if: always()
         env:
           GH_TOKEN: ${{ github.token }}
+          STILL_RECOVERY_PROOF: ${{ runner.temp }}/still-recovery-proof-${{ github.run_id }}
         run: |
           python3 - <<'PY'
           import json, os, shutil, subprocess
           from pathlib import Path
           repo = 'alvarovillalbaa/still-markdown'
-          branch = 'qa/still-device-recovery-20261112-1'
+          branch = 'qa/still-device-recovery-20261112-2'
           assert os.environ['GITHUB_REPOSITORY'] == repo
           assert os.environ['GITHUB_REF'] == 'refs/heads/' + branch
           def api(route, method='GET'):
@@ -51,7 +53,7 @@ jobs:
               return json.loads(result.stdout) if result.stdout else None
           run = api('actions/runs/' + os.environ['GITHUB_RUN_ID'])
           assert run['head_sha'] == os.environ['GITHUB_SHA'] and run['head_branch'] == branch
-          assert run['path'] == '.github/workflows/device-recovery.yml'
+          assert run['path'] == '.github/workflows/device-recovery-v2.yml'
           ref = api('git/ref/heads/' + branch)
           assert ref['object']['sha'] == run['head_sha']
           api('actions/workflows/' + str(run['workflow_id']) + '/disable', 'PUT')
