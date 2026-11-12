@@ -17,7 +17,7 @@ import zipfile
 
 assert os.environ.get("GITHUB_ACTIONS") == "true"
 assert os.environ["GITHUB_REPOSITORY"] == "alvarovillalbaa/still-markdown"
-assert os.environ["GITHUB_REF"] == "refs/heads/qa/still-device-recovery-20261112-2"
+assert os.environ["GITHUB_REF"] == "refs/heads/qa/still-device-recovery-20261112-3"
 source = Path.cwd()
 temporary = Path(os.environ["RUNNER_TEMP"]).resolve()
 root = temporary / f"still-recovery-{os.environ['GITHUB_RUN_ID']}"
@@ -126,7 +126,7 @@ try:
             assert time.monotonic() < deadline
             time.sleep(0.2)
     receipt["http"] = []
-    for route, expected in [("/", 200), ("/%2e%2e/package.json", 403)]:
+    for route, expected in [("/", 200), ("/%2e%2e%2fpackage.json", 403)]:
         try:
             with urllib.request.urlopen("http://127.0.0.1:3210" + route, timeout=3) as response:
                 status, body = response.status, response.read(1_048_577)

@@ -1,12 +1,12 @@
 name: Still device recovery
 on:
   push:
-    branches: [qa/still-device-recovery-20261112-2]
+    branches: [qa/still-device-recovery-20261112-3]
 permissions:
   contents: write
   actions: write
 concurrency:
-  group: still-device-recovery-20261112-2
+  group: still-device-recovery-20261112-3
   cancel-in-progress: false
 jobs:
   recovery:
@@ -43,7 +43,7 @@ jobs:
           import json, os, shutil, subprocess
           from pathlib import Path
           repo = 'alvarovillalbaa/still-markdown'
-          branch = 'qa/still-device-recovery-20261112-2'
+          branch = 'qa/still-device-recovery-20261112-3'
           assert os.environ['GITHUB_REPOSITORY'] == repo
           assert os.environ['GITHUB_REF'] == 'refs/heads/' + branch
           def api(route, method='GET'):
@@ -53,7 +53,7 @@ jobs:
               return json.loads(result.stdout) if result.stdout else None
           run = api('actions/runs/' + os.environ['GITHUB_RUN_ID'])
           assert run['head_sha'] == os.environ['GITHUB_SHA'] and run['head_branch'] == branch
-          assert run['path'] == '.github/workflows/device-recovery-v2.yml'
+          assert run['path'] == '.github/workflows/device-recovery-v3.yml'
           ref = api('git/ref/heads/' + branch)
           assert ref['object']['sha'] == run['head_sha']
           api('actions/workflows/' + str(run['workflow_id']) + '/disable', 'PUT')
