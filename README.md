@@ -1,5 +1,7 @@
 # Still
 
+Last updated: 2026-11-12
+
 A quiet Markdown editor that opens onto a blank page. Write in one continuous
 document, select text to format it, or switch to Markdown source. There is no
 block data model and no external Markdown parser, editor framework, SDK, or
@@ -98,6 +100,14 @@ rows and current tab pages as JSON, or retry a complete read. New tab work remai
 unsaved until that read succeeds. The JSON file is a manual recovery archive;
 ordinary import still accepts Markdown/text files. See the [recovery receipt and
 limits](docs/results/2026/10-27/draft-recovery.md).
+
+The [native recovery checks](docs/results/2026/11-12/device-recovery.md) pass
+desktop and narrow touch-emulated Chromium: damaged IndexedDB records remain
+unchanged, real recovery downloads preserve tab edits and imported CRLF text,
+and an explicitly corrected fixture merges all pages and survives reload. These
+checks also repaired a local-server path error that rejected normal static
+files. They use a local server and disposable guest data; real account recovery,
+email delivery, physical devices and hosted recovery remain unverified.
 
 MCP uses manually issued bearer tokens, with read access by default and optional
 read/write access. Token digests are stored, tokens expire, and connections can

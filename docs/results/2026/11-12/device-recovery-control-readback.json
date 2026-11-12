@@ -1,0 +1,346 @@
+{
+  "run": {
+    "id": 43308242928,
+    "name": "Still device recovery",
+    "node_id": "WFR_kwLOVRVw488AAAAKFV9X8A",
+    "head_branch": "qa/still-device-recovery-20261112-3",
+    "head_sha": "69426fcc7f1afb191688b1dadee2e60d890926ee",
+    "path": ".github/workflows/device-recovery-v3.yml",
+    "display_title": "ci: qualify recovery with exact encoded traversal input",
+    "run_number": 1,
+    "event": "push",
+    "status": "completed",
+    "conclusion": "success",
+    "workflow_id": 416586458,
+    "check_suite_id": 117279302921,
+    "check_suite_node_id": "CS_kwDOVRVw488AAAAbTmQlCQ",
+    "url": "https://api.github.com/repos/alvarovillalbaa/still-markdown/actions/runs/43308242928",
+    "html_url": "https://github.com/alvarovillalbaa/still-markdown/actions/runs/43308242928",
+    "pull_requests": [],
+    "created_at": "2026-11-12T21:14:15Z",
+    "updated_at": "2026-11-12T21:14:49Z",
+    "actor": {
+      "login": "alvarovillalbaa",
+      "id": 87529457,
+      "node_id": "MDQ6VXNlcjg3NTI5NDU3",
+      "avatar_url": "https://avatars.githubusercontent.com/u/87529457?v=4",
+      "gravatar_id": "",
+      "url": "https://api.github.com/users/alvarovillalbaa",
+      "html_url": "https://github.com/alvarovillalbaa",
+      "followers_url": "https://api.github.com/users/alvarovillalbaa/followers",
+      "following_url": "https://api.github.com/users/alvarovillalbaa/following{/other_user}",
+      "gists_url": "https://api.github.com/users/alvarovillalbaa/gists{/gist_id}",
+      "starred_url": "https://api.github.com/users/alvarovillalbaa/starred{/owner}{/repo}",
+      "subscriptions_url": "https://api.github.com/users/alvarovillalbaa/subscriptions",
+      "organizations_url": "https://api.github.com/users/alvarovillalbaa/orgs",
+      "repos_url": "https://api.github.com/users/alvarovillalbaa/repos",
+      "events_url": "https://api.github.com/users/alvarovillalbaa/events{/privacy}",
+      "received_events_url": "https://api.github.com/users/alvarovillalbaa/received_events",
+      "type": "User",
+      "user_view_type": "public",
+      "site_admin": false
+    },
+    "run_attempt": 1,
+    "referenced_workflows": [],
+    "run_started_at": "2026-11-12T21:14:15Z",
+    "triggering_actor": {
+      "login": "alvarovillalbaa",
+      "id": 87529457,
+      "node_id": "MDQ6VXNlcjg3NTI5NDU3",
+      "avatar_url": "https://avatars.githubusercontent.com/u/87529457?v=4",
+      "gravatar_id": "",
+      "url": "https://api.github.com/users/alvarovillalbaa",
+      "html_url": "https://github.com/alvarovillalbaa",
+      "followers_url": "https://api.github.com/users/alvarovillalbaa/followers",
+      "following_url": "https://api.github.com/users/alvarovillalbaa/following{/other_user}",
+      "gists_url": "https://api.github.com/users/alvarovillalbaa/gists{/gist_id}",
+      "starred_url": "https://api.github.com/users/alvarovillalbaa/starred{/owner}{/repo}",
+      "subscriptions_url": "https://api.github.com/users/alvarovillalbaa/subscriptions",
+      "organizations_url": "https://api.github.com/users/alvarovillalbaa/orgs",
+      "repos_url": "https://api.github.com/users/alvarovillalbaa/repos",
+      "events_url": "https://api.github.com/users/alvarovillalbaa/events{/privacy}",
+      "received_events_url": "https://api.github.com/users/alvarovillalbaa/received_events",
+      "type": "User",
+      "user_view_type": "public",
+      "site_admin": false
+    },
+    "jobs_url": "https://api.github.com/repos/alvarovillalbaa/still-markdown/actions/runs/43308242928/jobs",
+    "logs_url": "https://api.github.com/repos/alvarovillalbaa/still-markdown/actions/runs/43308242928/logs",
+    "check_suite_url": "https://api.github.com/repos/alvarovillalbaa/still-markdown/check-suites/117279302921",
+    "artifacts_url": "https://api.github.com/repos/alvarovillalbaa/still-markdown/actions/runs/43308242928/artifacts",
+    "cancel_url": "https://api.github.com/repos/alvarovillalbaa/still-markdown/actions/runs/43308242928/cancel",
+    "rerun_url": "https://api.github.com/repos/alvarovillalbaa/still-markdown/actions/runs/43308242928/rerun",
+    "previous_attempt_url": null,
+    "workflow_url": "https://api.github.com/repos/alvarovillalbaa/still-markdown/actions/workflows/416586458",
+    "head_commit": {
+      "id": "69426fcc7f1afb191688b1dadee2e60d890926ee",
+      "tree_id": "7b427dcf4a3ee1ce28a4b67fb8f9c5b90450f896",
+      "message": "ci: qualify recovery with exact encoded traversal input",
+      "timestamp": "2026-11-12T21:14:13Z",
+      "author": {
+        "name": "Alvaro Villalba Perez",
+        "email": "87529457+alvarovillalbaa@users.noreply.github.com"
+      },
+      "committer": {
+        "name": "Alvaro Villalba Perez",
+        "email": "87529457+alvarovillalbaa@users.noreply.github.com"
+      }
+    },
+    "repository": {
+      "id": 1427468515,
+      "node_id": "R_kgDOVRVw4w",
+      "name": "still-markdown",
+      "full_name": "alvarovillalbaa/still-markdown",
+      "private": false,
+      "owner": {
+        "login": "alvarovillalbaa",
+        "id": 87529457,
+        "node_id": "MDQ6VXNlcjg3NTI5NDU3",
+        "avatar_url": "https://avatars.githubusercontent.com/u/87529457?v=4",
+        "gravatar_id": "",
+        "url": "https://api.github.com/users/alvarovillalbaa",
+        "html_url": "https://github.com/alvarovillalbaa",
+        "followers_url": "https://api.github.com/users/alvarovillalbaa/followers",
+        "following_url": "https://api.github.com/users/alvarovillalbaa/following{/other_user}",
+        "gists_url": "https://api.github.com/users/alvarovillalbaa/gists{/gist_id}",
+        "starred_url": "https://api.github.com/users/alvarovillalbaa/starred{/owner}{/repo}",
+        "subscriptions_url": "https://api.github.com/users/alvarovillalbaa/subscriptions",
+        "organizations_url": "https://api.github.com/users/alvarovillalbaa/orgs",
+        "repos_url": "https://api.github.com/users/alvarovillalbaa/repos",
+        "events_url": "https://api.github.com/users/alvarovillalbaa/events{/privacy}",
+        "received_events_url": "https://api.github.com/users/alvarovillalbaa/received_events",
+        "type": "User",
+        "user_view_type": "public",
+        "site_admin": false
+      },
+      "html_url": "https://github.com/alvarovillalbaa/still-markdown",
+      "description": "A quiet, in-house Markdown editor. Private pages, easy imports, and MCP access for your tools.",
+      "fork": false,
+      "url": "https://api.github.com/repos/alvarovillalbaa/still-markdown",
+      "forks_url": "https://api.github.com/repos/alvarovillalbaa/still-markdown/forks",
+      "keys_url": "https://api.github.com/repos/alvarovillalbaa/still-markdown/keys{/key_id}",
+      "collaborators_url": "https://api.github.com/repos/alvarovillalbaa/still-markdown/collaborators{/collaborator}",
+      "teams_url": "https://api.github.com/repos/alvarovillalbaa/still-markdown/teams",
+      "hooks_url": "https://api.github.com/repos/alvarovillalbaa/still-markdown/hooks",
+      "issue_events_url": "https://api.github.com/repos/alvarovillalbaa/still-markdown/issues/events{/number}",
+      "events_url": "https://api.github.com/repos/alvarovillalbaa/still-markdown/events",
+      "assignees_url": "https://api.github.com/repos/alvarovillalbaa/still-markdown/assignees{/user}",
+      "branches_url": "https://api.github.com/repos/alvarovillalbaa/still-markdown/branches{/branch}",
+      "tags_url": "https://api.github.com/repos/alvarovillalbaa/still-markdown/tags",
+      "blobs_url": "https://api.github.com/repos/alvarovillalbaa/still-markdown/git/blobs{/sha}",
+      "git_tags_url": "https://api.github.com/repos/alvarovillalbaa/still-markdown/git/tags{/sha}",
+      "git_refs_url": "https://api.github.com/repos/alvarovillalbaa/still-markdown/git/refs{/sha}",
+      "trees_url": "https://api.github.com/repos/alvarovillalbaa/still-markdown/git/trees{/sha}",
+      "statuses_url": "https://api.github.com/repos/alvarovillalbaa/still-markdown/statuses/{sha}",
+      "languages_url": "https://api.github.com/repos/alvarovillalbaa/still-markdown/languages",
+      "stargazers_url": "https://api.github.com/repos/alvarovillalbaa/still-markdown/stargazers",
+      "contributors_url": "https://api.github.com/repos/alvarovillalbaa/still-markdown/contributors",
+      "subscribers_url": "https://api.github.com/repos/alvarovillalbaa/still-markdown/subscribers",
+      "subscription_url": "https://api.github.com/repos/alvarovillalbaa/still-markdown/subscription",
+      "commits_url": "https://api.github.com/repos/alvarovillalbaa/still-markdown/commits{/sha}",
+      "git_commits_url": "https://api.github.com/repos/alvarovillalbaa/still-markdown/git/commits{/sha}",
+      "comments_url": "https://api.github.com/repos/alvarovillalbaa/still-markdown/comments{/number}",
+      "issue_comment_url": "https://api.github.com/repos/alvarovillalbaa/still-markdown/issues/comments{/number}",
+      "contents_url": "https://api.github.com/repos/alvarovillalbaa/still-markdown/contents/{+path}",
+      "compare_url": "https://api.github.com/repos/alvarovillalbaa/still-markdown/compare/{base}...{head}",
+      "merges_url": "https://api.github.com/repos/alvarovillalbaa/still-markdown/merges",
+      "archive_url": "https://api.github.com/repos/alvarovillalbaa/still-markdown/{archive_format}{/ref}",
+      "downloads_url": "https://api.github.com/repos/alvarovillalbaa/still-markdown/downloads",
+      "issues_url": "https://api.github.com/repos/alvarovillalbaa/still-markdown/issues{/number}",
+      "pulls_url": "https://api.github.com/repos/alvarovillalbaa/still-markdown/pulls{/number}",
+      "milestones_url": "https://api.github.com/repos/alvarovillalbaa/still-markdown/milestones{/number}",
+      "notifications_url": "https://api.github.com/repos/alvarovillalbaa/still-markdown/notifications{?since,all,participating}",
+      "labels_url": "https://api.github.com/repos/alvarovillalbaa/still-markdown/labels{/name}",
+      "releases_url": "https://api.github.com/repos/alvarovillalbaa/still-markdown/releases{/id}",
+      "deployments_url": "https://api.github.com/repos/alvarovillalbaa/still-markdown/deployments"
+    },
+    "head_repository": {
+      "id": 1427468515,
+      "node_id": "R_kgDOVRVw4w",
+      "name": "still-markdown",
+      "full_name": "alvarovillalbaa/still-markdown",
+      "private": false,
+      "owner": {
+        "login": "alvarovillalbaa",
+        "id": 87529457,
+        "node_id": "MDQ6VXNlcjg3NTI5NDU3",
+        "avatar_url": "https://avatars.githubusercontent.com/u/87529457?v=4",
+        "gravatar_id": "",
+        "url": "https://api.github.com/users/alvarovillalbaa",
+        "html_url": "https://github.com/alvarovillalbaa",
+        "followers_url": "https://api.github.com/users/alvarovillalbaa/followers",
+        "following_url": "https://api.github.com/users/alvarovillalbaa/following{/other_user}",
+        "gists_url": "https://api.github.com/users/alvarovillalbaa/gists{/gist_id}",
+        "starred_url": "https://api.github.com/users/alvarovillalbaa/starred{/owner}{/repo}",
+        "subscriptions_url": "https://api.github.com/users/alvarovillalbaa/subscriptions",
+        "organizations_url": "https://api.github.com/users/alvarovillalbaa/orgs",
+        "repos_url": "https://api.github.com/users/alvarovillalbaa/repos",
+        "events_url": "https://api.github.com/users/alvarovillalbaa/events{/privacy}",
+        "received_events_url": "https://api.github.com/users/alvarovillalbaa/received_events",
+        "type": "User",
+        "user_view_type": "public",
+        "site_admin": false
+      },
+      "html_url": "https://github.com/alvarovillalbaa/still-markdown",
+      "description": "A quiet, in-house Markdown editor. Private pages, easy imports, and MCP access for your tools.",
+      "fork": false,
+      "url": "https://api.github.com/repos/alvarovillalbaa/still-markdown",
+      "forks_url": "https://api.github.com/repos/alvarovillalbaa/still-markdown/forks",
+      "keys_url": "https://api.github.com/repos/alvarovillalbaa/still-markdown/keys{/key_id}",
+      "collaborators_url": "https://api.github.com/repos/alvarovillalbaa/still-markdown/collaborators{/collaborator}",
+      "teams_url": "https://api.github.com/repos/alvarovillalbaa/still-markdown/teams",
+      "hooks_url": "https://api.github.com/repos/alvarovillalbaa/still-markdown/hooks",
+      "issue_events_url": "https://api.github.com/repos/alvarovillalbaa/still-markdown/issues/events{/number}",
+      "events_url": "https://api.github.com/repos/alvarovillalbaa/still-markdown/events",
+      "assignees_url": "https://api.github.com/repos/alvarovillalbaa/still-markdown/assignees{/user}",
+      "branches_url": "https://api.github.com/repos/alvarovillalbaa/still-markdown/branches{/branch}",
+      "tags_url": "https://api.github.com/repos/alvarovillalbaa/still-markdown/tags",
+      "blobs_url": "https://api.github.com/repos/alvarovillalbaa/still-markdown/git/blobs{/sha}",
+      "git_tags_url": "https://api.github.com/repos/alvarovillalbaa/still-markdown/git/tags{/sha}",
+      "git_refs_url": "https://api.github.com/repos/alvarovillalbaa/still-markdown/git/refs{/sha}",
+      "trees_url": "https://api.github.com/repos/alvarovillalbaa/still-markdown/git/trees{/sha}",
+      "statuses_url": "https://api.github.com/repos/alvarovillalbaa/still-markdown/statuses/{sha}",
+      "languages_url": "https://api.github.com/repos/alvarovillalbaa/still-markdown/languages",
+      "stargazers_url": "https://api.github.com/repos/alvarovillalbaa/still-markdown/stargazers",
+      "contributors_url": "https://api.github.com/repos/alvarovillalbaa/still-markdown/contributors",
+      "subscribers_url": "https://api.github.com/repos/alvarovillalbaa/still-markdown/subscribers",
+      "subscription_url": "https://api.github.com/repos/alvarovillalbaa/still-markdown/subscription",
+      "commits_url": "https://api.github.com/repos/alvarovillalbaa/still-markdown/commits{/sha}",
+      "git_commits_url": "https://api.github.com/repos/alvarovillalbaa/still-markdown/git/commits{/sha}",
+      "comments_url": "https://api.github.com/repos/alvarovillalbaa/still-markdown/comments{/number}",
+      "issue_comment_url": "https://api.github.com/repos/alvarovillalbaa/still-markdown/issues/comments{/number}",
+      "contents_url": "https://api.github.com/repos/alvarovillalbaa/still-markdown/contents/{+path}",
+      "compare_url": "https://api.github.com/repos/alvarovillalbaa/still-markdown/compare/{base}...{head}",
+      "merges_url": "https://api.github.com/repos/alvarovillalbaa/still-markdown/merges",
+      "archive_url": "https://api.github.com/repos/alvarovillalbaa/still-markdown/{archive_format}{/ref}",
+      "downloads_url": "https://api.github.com/repos/alvarovillalbaa/still-markdown/downloads",
+      "issues_url": "https://api.github.com/repos/alvarovillalbaa/still-markdown/issues{/number}",
+      "pulls_url": "https://api.github.com/repos/alvarovillalbaa/still-markdown/pulls{/number}",
+      "milestones_url": "https://api.github.com/repos/alvarovillalbaa/still-markdown/milestones{/number}",
+      "notifications_url": "https://api.github.com/repos/alvarovillalbaa/still-markdown/notifications{?since,all,participating}",
+      "labels_url": "https://api.github.com/repos/alvarovillalbaa/still-markdown/labels{/name}",
+      "releases_url": "https://api.github.com/repos/alvarovillalbaa/still-markdown/releases{/id}",
+      "deployments_url": "https://api.github.com/repos/alvarovillalbaa/still-markdown/deployments"
+    }
+  },
+  "jobs": {
+    "jobs": [
+      {
+        "id": 131497106679,
+        "name": "recovery",
+        "status": "completed",
+        "conclusion": "success",
+        "run_id": 43308242928,
+        "logs_url": null,
+        "steps": [
+          {
+            "name": "Set up job",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 1
+          },
+          {
+            "name": "Run actions/checkout@v4",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 2
+          },
+          {
+            "name": "Run actions/setup-node@v4",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 3
+          },
+          {
+            "name": "Two native recovery cases",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 4
+          },
+          {
+            "name": "Run actions/upload-artifact@v4",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 5
+          },
+          {
+            "name": "Retire only this control",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 6
+          },
+          {
+            "name": "Post Run actions/setup-node@v4",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 11
+          },
+          {
+            "name": "Post Run actions/checkout@v4",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 12
+          },
+          {
+            "name": "Complete job",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 13
+          }
+        ]
+      }
+    ]
+  },
+  "artifact": {
+    "artifacts": [
+      {
+        "id": 13984991322,
+        "name": "still-device-recovery-43308242928",
+        "size_in_bytes": 409824,
+        "url": "https://api.github.com/repos/alvarovillalbaa/still-markdown/actions/artifacts/13984991322",
+        "archive_download_url": "https://api.github.com/repos/alvarovillalbaa/still-markdown/actions/artifacts/13984991322/zip",
+        "expired": false,
+        "created_at": "2026-11-12T21:14:44Z",
+        "expires_at": "2026-11-14T21:14:43Z",
+        "updated_at": "2026-11-12T21:14:44Z",
+        "digest": "sha256:48f00fe0f934e9284c47df7b6a95dbba622690668afb5c98f035bd1e1c12a2c2",
+        "workflow_run": {
+          "id": 43308242928,
+          "repository_id": 1427468515,
+          "head_repository_id": 1427468515,
+          "head_branch": "qa/still-device-recovery-20261112-3",
+          "head_sha": "69426fcc7f1afb191688b1dadee2e60d890926ee"
+        }
+      }
+    ]
+  },
+  "readback": [
+    {
+      "scope": 0,
+      "status": "fulfilled",
+      "response": {
+        "chunk_id": "21302b",
+        "wall_time_seconds": 1.8529511250000001,
+        "exit_code": 0,
+        "original_token_count": 71,
+        "output": "{\"id\":416577013,\"path\":\".github/workflows/device-recovery.yml\",\"state\":\"disabled_manually\"}\n{\"id\":416583547,\"path\":\".github/workflows/device-recovery-v2.yml\",\"state\":\"disabled_manually\"}\n{\"id\":416586458,\"path\":\".github/workflows/device-recovery-v3.yml\",\"state\":\"disabled_manually\"}\n"
+      }
+    },
+    {
+      "scope": 1,
+      "status": "fulfilled",
+      "response": "[]"
+    },
+    {
+      "scope": 2,
+      "status": "fulfilled",
+      "response": "[]"
+    },
+    {
+      "scope": 3,
+      "status": "fulfilled",
+      "response": "[]"
+    }
+  ],
+  "observedAt": "2026-11-12T21:18:45.614Z"
+}

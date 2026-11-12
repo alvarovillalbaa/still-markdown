@@ -26,3 +26,12 @@ remain closed; no account, provider request, app dependency or production change
 Local Storage Guard still prohibits local runtime below its reserve. Preserve
 the permanent verify workflow; the new QA control must retire only itself and
 its exact owned ref after uploading the bounded original evidence.
+
+R01/R02 are now accepted together at source
+`552a08a2d3cdf83fc0d3420a15808fe2c5da7efb`, run 43308242928; see
+`docs/results/2026/11-12/device-recovery.md`. Keep these identities closed and
+all three earlier failed packets immutable. The local-server containment fix
+and actual static HTTP/traversal probes passed. All three one-off workflows
+are disabled and their exact owned refs are absent; main retains only the
+permanent workflow and an inactive example. No local Storage Guard exception
+or cloud/Auth/email/MCP acceptance follows from this packet.

@@ -1,0 +1,42 @@
+{
+  "packet": {
+    "bytes": 408643,
+    "sha256": "31a492cc1540ed4540672e7534e36fad3da00c37350aaed0861a72b31535cf06",
+    "members": 72
+  },
+  "sourceFiles": 55,
+  "sourceAndIndexMatch": true,
+  "commands": 4,
+  "completeStreams": 8,
+  "exactLocalResponses": 50,
+  "downloads": 6,
+  "cases": [
+    "R01",
+    "R02"
+  ],
+  "retirementResponses": 6,
+  "workflow": 416586458,
+  "images": [
+    {
+      "name": "R01-paused.png",
+      "bytes": 59725,
+      "sha256": "dd3b5604e3467bfa8c0643e75107474857a0cf28603656f316cf2399be4bd7a6"
+    },
+    {
+      "name": "R01-recovered.png",
+      "bytes": 48191,
+      "sha256": "ae6e14426d11ea24cd903dec12336b93ca4c8ded09a5ce1e2501255ee0ecfd35"
+    },
+    {
+      "name": "R02-paused.png",
+      "bytes": 34327,
+      "sha256": "caf570b7d5a3903773b3833a9f9af66bbcb20effd2d8a61d7d95eb383f95e4b7"
+    },
+    {
+      "name": "R02-recovered.png",
+      "bytes": 21092,
+      "sha256": "276170ad86b6399ef324cdc354c4b60289613205a13d6d92988d6f5fd30039ea"
+    }
+  ],
+  "success": true
+}

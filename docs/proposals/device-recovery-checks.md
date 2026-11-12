@@ -2,6 +2,12 @@
 
 Last updated: 2026-11-12
 
+Status: **closed at its recorded source**. Both cases passed together in
+[run 43308242928](https://github.com/alvarovillalbaa/still-markdown/actions/runs/43308242928).
+The [result](../results/2026/11-12/device-recovery.md) preserves three preceding
+failures, the local-server repair and the exact acceptance limits. Do not replay
+this scope unchanged. The original prepared scope follows.
+
 Two new cases qualify the existing recovery repair, without replaying its unit
 suite or the previously accepted ordinary editor journeys:
 
