@@ -1,0 +1,107 @@
+{
+  "schemaVersion": 1,
+  "scope": "Restore the existing owner-approved shared Still/Kickoff project; no new project or schema/application/Auth change",
+  "authorization": "Standing owner approval to continue and complete work, with approved free consolidation into Still and no paid plan",
+  "project": {
+    "id": "wosqlzijmyiemueoittw",
+    "name": "Still",
+    "organizationId": "jnmtatndgpzawemtiukl",
+    "organizationName": "Clous",
+    "planBefore": "free",
+    "planAfter": "free",
+    "region": "eu-central-1",
+    "databaseVersionBefore": "17.11.0.003",
+    "databaseVersionAfter": "17.11.0.003"
+  },
+  "states": {
+    "before": "INACTIVE",
+    "restoreAccepted": true,
+    "intermediate": "COMING_UP",
+    "final": "ACTIVE_HEALTHY",
+    "onlyChangedProject": [
+      {
+        "id": "wosqlzijmyiemueoittw",
+        "before": "INACTIVE",
+        "after": "ACTIVE_HEALTHY"
+      }
+    ]
+  },
+  "bindings": {
+    "still": {
+      "publicConfigUrl": "https://still-markdown.vercel.app/api/config",
+      "backend": "https://wosqlzijmyiemueoittw.supabase.co",
+      "publicKeyKind": "publishable",
+      "servedRevision": "1d6ecadf7e14fe65a44d52d9a863306369cf5376"
+    },
+    "kickoff": {
+      "origin": "https://kickoff-football-seven.vercel.app",
+      "bundle": "/assets/index-Be7YQPM9.js",
+      "bytes": 391157,
+      "sha256": "8f0e8e6ac5a70cee079132b439b02a968cd47a4adee4d23c5bd2ff692c67a041",
+      "onlyBackend": "https://wosqlzijmyiemueoittw.supabase.co",
+      "retiredBackendAbsent": true
+    }
+  },
+  "probes": [
+    {
+      "stage": "before",
+      "stillHealthStatus": 503,
+      "stillHealth": {
+        "application": "still",
+        "ready": false,
+        "reason": "auth_unreachable"
+      }
+    },
+    {
+      "stage": "coming_up",
+      "stillHealthStatus": 503,
+      "kickoffCatalogStatus": 521,
+      "publicConfigUnchanged": true
+    },
+    {
+      "stage": "healthy",
+      "stillHealthStatus": 200,
+      "kickoffCatalogStatus": 200,
+      "health": {
+        "application": "still",
+        "ready": true,
+        "revision": "1d6ecadf7e14fe65a44d52d9a863306369cf5376",
+        "auth": {
+          "emailEnabled": true,
+          "signupEnabled": true,
+          "emailConfirmationRequired": true
+        }
+      },
+      "publicConfigUnchanged": true,
+      "emailDeliveryVerified": false,
+      "passwordRecoveryEnabled": false,
+      "catalogCounts": {
+        "slots": 0,
+        "fields": 0,
+        "centers": 0,
+        "matches": 0
+      },
+      "healthBytes": 173,
+      "catalogBytes": 57
+    }
+  ],
+  "unchanged": {
+    "publishedPublicConfig": true,
+    "emailDeliveryVerified": false,
+    "passwordRecoveryEnabled": false,
+    "emailConfirmationRequired": true,
+    "retiredKickoffProject": "INACTIVE",
+    "otherProjectStates": true
+  },
+  "verification": "Actual anonymous app health/Auth settings and read-only stable public catalog RPC, no database fixtures or customer/account export",
+  "limits": [
+    "No email confirmation/recovery delivery or signup acceptance",
+    "No confirmed-account cloud sync, authenticated MCP, booking/concurrency or private-data integrity proof",
+    "No browser recovery, closed guest/editor tests, CI replay, local install/build or database environment"
+  ],
+  "sources": [
+    "https://supabase.com/docs/guides/platform/free-project-pausing",
+    "https://supabase.com/docs/guides/platform/billing-faq",
+    "https://supabase.com/changelog.md"
+  ]
+}
